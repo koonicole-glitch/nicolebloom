@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Nicole 2026 美夢成真計畫 v1.1</title>
+    <title>Nicole 2026 美夢成真計畫 v1.2</title>
     
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌿</text></svg>">
     <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/4322/4322991.png">
@@ -39,13 +39,10 @@
     <script src="https://unpkg.com/prop-types/prop-types.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <script src="https://unpkg.com/markdown-it@13.0.1/dist/markdown-it.min.js"></script>
-
     <script src="https://unpkg.com/recharts@2.10.3/umd/Recharts.js"></script>
-
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
-
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     
     <style>
@@ -63,8 +60,6 @@
         input:focus, textarea:focus { outline: 2px solid #4A5D23; background-color: #ffffff; }
         .markdown-body p { margin-bottom: 1em; line-height: 1.6; }
         .markdown-body ul { list-style: disc; padding-left: 1.5em; margin-bottom: 1em; }
-        .markdown-body ol { list-style: decimal; padding-left: 1.5em; margin-bottom: 1em; }
-        .markdown-body strong { color: #4A5D23; }
         .chat-bubble { max-width: 85%; padding: 12px 16px; border-radius: 18px; line-height: 1.5; margin-bottom: 8px; position: relative; }
         .chat-user { background-color: #4A5D23; color: white; align-self: flex-end; border-bottom-right-radius: 4px; }
         .chat-ai { background-color: #F5F2EB; color: #4A5D23; align-self: flex-start; border-bottom-left-radius: 4px; }
@@ -106,9 +101,8 @@
         const auth = firebase.auth();
         const db = firebase.firestore();
 
-        // --- 2. 工具函數與常數 ---
+        // --- 2. 工具函數 ---
         const { useState, useEffect, useMemo, useRef } = React;
-        // 修正：將 Recharts 和 markdownit 的初始化移到使用時，避免全域錯誤
         const Recharts = window.Recharts || {};
         const { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } = Recharts;
 
@@ -124,6 +118,8 @@
             return d.toISOString().split('T')[0];
         };
 
+        const MEAL_CATEGORIES = { 'breakfast': '早餐', 'lunch': '午餐', 'dinner': '晚餐', 'snack': '點心' };
+
         const getDefaultMealCategory = () => {
             const hour = new Date().getHours();
             if (hour >= 5 && hour < 11) return 'breakfast';
@@ -132,31 +128,20 @@
             return 'snack';
         };
 
-        const MEAL_CATEGORIES = {
-            'breakfast': '早餐',
-            'lunch': '午餐',
-            'dinner': '晚餐',
-            'snack': '點心'
-        };
-
         const fallbackAnalysis = (text) => {
             let c=0, p=0, cb=0, f=0;
             const t = text.toLowerCase();
-            // 基礎關鍵字比對
             if (t.includes('雞排') || t.includes('炸雞')) { c+=600; p+=40; f+=35; cb+=20; }
             else if (t.includes('雞') || t.includes('肉') || t.includes('魚')) { c+=200; p+=25; f+=10; }
             if (t.includes('芋泥') || t.includes('芋頭')) { c+=150; cb+=35; f+=5; }
-            if (t.includes('甜不辣')) { c+=200; cb+=30; f+=10; p+=5; }
             if (t.includes('飯') || t.includes('粥')) { c+=280; p+=4; cb+=60; }
             if (t.includes('麵')) { c+=300; p+=8; cb+=50; }
             if (t.includes('菜') || t.includes('蔬') || t.includes('沙拉')) { c+=50; cb+=10; }
             if (t.includes('便當')) { c=800; p=25; cb=80; f=35; }
             if (t.includes('奶') || t.includes('拿鐵')) { c+=150; p+=8; f+=8; cb+=10; }
-            if (t.includes('炸') && !t.includes('雞排')) { c+=150; f+=15; }
             if (t.includes('蛋')) { c+=75; p+=7; f+=5; }
-            if (t.includes('香蕉')) { c+=100; cb+=25; } // 新增常見水果
-            
-            if (c===0 && t.length > 0) c=200; // 真的找不到時的預設值
+            if (t.includes('香蕉')) { c+=100; cb+=25; }
+            if (c===0 && t.length > 0) c=200;
             return { name: text, calories: c, protein: p, carbs: cb, fat: f };
         };
 
@@ -164,11 +149,11 @@
         const Loading = () => {
             const [showReset, setShowReset] = useState(false);
             useEffect(() => {
-                const timer = setTimeout(() => setShowReset(true), 5000); // 延長到5秒
+                const timer = setTimeout(() => setShowReset(true), 5000);
                 return () => clearTimeout(timer);
             }, []);
             const handleReset = () => {
-                if(confirm('這將清除此裝置上的同步設定並重新載入，確定嗎？(您的雲端資料不會消失)')) {
+                if(confirm('確定重置？(雲端資料不會消失)')) {
                     localStorage.removeItem('health_log_sync_id');
                     window.location.reload();
                 }
@@ -178,12 +163,9 @@
                     <span className="material-icons text-6xl animate-bounce mb-4">fitness_center</span>
                     <p className="text-xl font-bold mb-8">載入資料中...</p>
                     {showReset && (
-                        <div className="animate-fade-in">
-                            <p className="text-secondary mb-2 text-sm">載入似乎卡住了？</p>
-                            <button onClick={handleReset} className="bg-red-500 text-white px-6 py-3 rounded-xl font-bold shadow-lg active:scale-95 transition-transform flex items-center gap-2">
-                                <span className="material-icons">restart_alt</span> ⚠️ 點此重置系統
-                            </button>
-                        </div>
+                        <button onClick={handleReset} className="bg-red-500 text-white px-6 py-3 rounded-xl font-bold shadow-lg">
+                             ⚠️ 重置系統
+                        </button>
                     )}
                 </div>
             );
@@ -200,8 +182,7 @@
             const styles = {
                 primary: "bg-primary text-white shadow-lg shadow-primary/30",
                 secondary: "bg-secondary text-white",
-                outline: "border-2 border-primary text-primary bg-transparent",
-                ghost: "bg-inputBg text-secondary"
+                outline: "border-2 border-primary text-primary bg-transparent"
             };
             return (
                 <button onClick={onClick} disabled={disabled} className={`${baseStyle} ${styles[variant]} ${className}`}>
@@ -210,290 +191,15 @@
             );
         };
 
-        const InputGroup = ({ label, value, onChange, type = "text", placeholder, suffix }) => (
+        const InputGroup = ({ label, value, onChange, type = "text", placeholder }) => (
             <div className="mb-4">
                 <label className="block text-secondary mb-2 font-bold">{label}</label>
-                <div className="relative">
-                    <input type={type} value={value} onChange={onChange} placeholder={placeholder}
-                        className="w-full bg-inputBg rounded-xl p-4 text-primary font-bold border-none" />
-                    {suffix && <span className="absolute right-4 top-4 text-secondary">{suffix}</span>}
-                </div>
+                <input type={type} value={value} onChange={onChange} placeholder={placeholder}
+                    className="w-full bg-inputBg rounded-xl p-4 text-primary font-bold border-none" />
             </div>
         );
 
-        // --- 4. 主要頁面組件 ---
+        // --- 4. 主要頁面 ---
         const Dashboard = ({ data, targets, totals, onQuickAdd, onCopy, isWorkoutDay }) => {
             const currentTargets = isWorkoutDay ? targets.workout : targets.rest;
-            const remainingCal = currentTargets.calories - totals.cal;
-            const getAdvice = () => {
-                if (data.water < targets.water * 0.5) return { icon: 'water_drop', text: "水分攝取不足，快喝杯水！", color: "text-blue-500" };
-                if (totals.pro < currentTargets.protein * 0.4) return { icon: 'egg_alt', text: "蛋白質進度落後，晚餐多吃點肉或蛋。", color: "text-primary" };
-                if (data.sleep > 0 && data.sleep < 6) return { icon: 'bedtime', text: "昨晚睡太少囉，今晚早點休息！", color: "text-purple-500" };
-                if (isWorkoutDay) return { icon: 'fitness_center', text: "今天是訓練日，目標已自動調高！", color: "text-orange-500" };
-                return { icon: 'thumb_up', text: "今天狀態不錯，繼續保持！", color: "text-primary" };
-            };
-            const advice = getAdvice();
-
-            return (
-                <div className="space-y-6 animate-fade-in">
-                    <Card className="bg-primary text-white border-none">
-                        <div className="flex justify-between items-start mb-4">
-                            <div>
-                                <h2 className="text-white/90 text-lg">今日剩餘</h2>
-                                <div className="big-num">{Math.round(remainingCal)}</div>
-                                <div className="text-white/80 text-sm">kcal</div>
-                            </div>
-                            <div className="text-right">
-                                <div className={`px-3 py-1 rounded-full text-sm font-bold inline-block mb-1 ${isWorkoutDay ? 'bg-orange-400 text-white' : 'bg-white/20'}`}>
-                                    {isWorkoutDay ? '🔥 運動日' : '☕ 休息日'}
-                                </div>
-                                <div className="text-white/90 text-sm">攝取 {Math.round(totals.cal)} / {currentTargets.calories}</div>
-                            </div>
-                        </div>
-                        <div className="grid grid-cols-3 gap-2 mt-4">
-                            <div className="bg-white/10 p-2 rounded-lg text-center">
-                                <div className="text-xs opacity-70">蛋白質</div>
-                                <div className="font-bold">{Math.round(totals.pro)}/{currentTargets.protein}</div>
-                            </div>
-                            <div className="bg-white/10 p-2 rounded-lg text-center">
-                                <div className="text-xs opacity-70">碳水</div>
-                                <div className="font-bold">{Math.round(totals.carb)}/{currentTargets.carbs}</div>
-                            </div>
-                            <div className="bg-white/10 p-2 rounded-lg text-center">
-                                <div className="text-xs opacity-70">脂肪</div>
-                                <div className="font-bold">{Math.round(totals.fat)}/{currentTargets.fat}</div>
-                            </div>
-                        </div>
-                    </Card>
-                    <Card className="flex items-center gap-4 bg-yellow-50 border-yellow-100">
-                        <span className={`material-icons text-3xl ${advice.color}`}>{advice.icon}</span>
-                        <div>
-                            <h3 className="font-bold text-secondary">AI 小助手</h3>
-                            <p className="text-sm text-secondary">{advice.text}</p>
-                        </div>
-                    </Card>
-                    <div className="grid grid-cols-2 gap-4">
-                        <Card onClick={() => onQuickAdd('water', 250)} className="cursor-pointer active:scale-95 transition-transform relative overflow-hidden">
-                            <div className="absolute right-[-10px] bottom-[-10px] opacity-10"><span className="material-icons text-8xl text-blue-500">water_drop</span></div>
-                            <h3 className="text-secondary font-bold">水分</h3>
-                            <div className="flex items-baseline gap-1 mt-1"><span className="text-3xl font-bold text-blue-600">{data.water}</span><span className="text-sm">ml</span></div>
-                            <div className="mt-2 text-xs text-secondary bg-inputBg inline-block px-2 py-1 rounded">+250ml</div>
-                        </Card>
-                        <Card onClick={() => onQuickAdd('steps', 500)} className="cursor-pointer active:scale-95 transition-transform relative overflow-hidden">
-                             <div className="absolute right-[-10px] bottom-[-10px] opacity-10"><span className="material-icons text-8xl text-orange-500">directions_run</span></div>
-                            <h3 className="text-secondary font-bold">步數</h3>
-                            <div className="flex items-baseline gap-1 mt-1"><span className="text-3xl font-bold text-orange-600">{data.steps}</span><span className="text-sm">步</span></div>
-                            <div className="mt-2 text-xs text-secondary bg-inputBg inline-block px-2 py-1 rounded">+500步</div>
-                        </Card>
-                    </div>
-                    <Button variant="secondary" onClick={onCopy}>
-                        <span className="material-icons">content_copy</span> 複製給教練
-                    </Button>
-                </div>
-            );
-        };
-
-        const LogPage = ({ data, onUpdate, onAddMeal, deleteMeal, apiKey, favorites, onToggleFavorite }) => {
-            const [mealInput, setMealInput] = useState('');
-            const [manualMode, setManualMode] = useState(false);
-            const [analyzing, setAnalyzing] = useState(false);
-            const [selectedCategory, setSelectedCategory] = useState(getDefaultMealCategory());
-            const [manualMeal, setManualMeal] = useState({ name: '', calories: '', protein: '', carbs: '', fat: '' });
-            const [showFavModal, setShowFavModal] = useState(false);
-
-            const analyzeWithAI = async (text) => {
-                if (!apiKey) return fallbackAnalysis(text);
-                try {
-                    // 重要修正：強制 JSON 回傳模式
-                    const prompt = `分析以下食物的營養成分。食物名稱：${text}。
-                    請回傳一個 JSON 物件，格式必須為：
-                    {"name": "${text}", "calories": 數字(大卡), "protein": 數字(g), "carbs": 數字(g), "fat": 數字(g)}。
-                    如果是炸物請適當加高熱量。請確保欄位名稱完全正確且為小寫英文。`;
-                    
-                    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ 
-                            contents: [{ parts: [{ text: prompt }] }],
-                            generationConfig: { response_mime_type: "application/json" } // 關鍵修正：強制 JSON 模式
-                        })
-                    });
-                    const result = await response.json();
-                    
-                    // 解析回傳的 JSON
-                    const jsonText = result.candidates[0].content.parts[0].text;
-                    const parsedData = JSON.parse(jsonText);
-                    
-                    // 確保數值型別正確
-                    return {
-                        name: parsedData.name || text,
-                        calories: Number(parsedData.calories) || 0,
-                        protein: Number(parsedData.protein) || 0,
-                        carbs: Number(parsedData.carbs) || 0,
-                        fat: Number(parsedData.fat) || 0
-                    };
-
-                } catch (e) {
-                    console.error("AI Analysis failed", e);
-                    alert("AI 分析失敗，已切換至估算模式。原因：" + e.message);
-                    return fallbackAnalysis(text);
-                }
-            };
-
-            const handleAdd = async (mealDataOverride = null) => {
-                let mealToAdd = mealDataOverride;
-
-                if (!mealToAdd) {
-                    if(manualMode) {
-                        mealToAdd = {
-                            name: manualMeal.name || '自訂餐點',
-                            calories: Number(manualMeal.calories),
-                            protein: Number(manualMeal.protein),
-                            carbs: Number(manualMeal.carbs),
-                            fat: Number(manualMeal.fat)
-                        };
-                        setManualMeal({ name: '', calories: '', protein: '', carbs: '', fat: '' });
-                        setManualMode(false);
-                    } else {
-                        if (!mealInput) return;
-                        if (apiKey) {
-                            setAnalyzing(true);
-                            mealToAdd = await analyzeWithAI(mealInput);
-                            setAnalyzing(false);
-                        } else {
-                            mealToAdd = fallbackAnalysis(mealInput);
-                        }
-                        setMealInput('');
-                    }
-                }
-
-                if (mealToAdd) {
-                    onAddMeal({ ...mealToAdd, category: selectedCategory });
-                }
-            };
-
-            const mealsByCategory = useMemo(() => {
-                const groups = { breakfast: [], lunch: [], dinner: [], snack: [] };
-                (data.meals || []).forEach(m => {
-                    const cat = m.category || 'snack';
-                    if (groups[cat]) groups[cat].push(m);
-                });
-                return groups;
-            }, [data.meals]);
-
-            return (
-                <div className="space-y-6 pb-20">
-                    <Card>
-                        <h3 className="text-xl font-bold text-primary mb-4 flex items-center gap-2">
-                            <span className="material-icons">accessibility</span> 身體與狀態
-                        </h3>
-                        <div className="grid grid-cols-2 gap-4">
-                            <InputGroup label="體重 (kg)" type="number" value={data.weight || ''} 
-                                onChange={e => onUpdate({weight: e.target.value})} placeholder="0.0" />
-                            <InputGroup label="睡眠 (hr)" type="number" value={data.sleep || ''} 
-                                onChange={e => onUpdate({sleep: e.target.value})} placeholder="7.0" />
-                        </div>
-                        <div>
-                            <label className="block text-secondary mb-2 font-bold flex justify-between">
-                                <span>疲勞度 (1-10)</span>
-                                <span className="text-primary font-bold">{data.fatigue}</span>
-                            </label>
-                            <input type="range" min="1" max="10" value={data.fatigue} 
-                                onChange={e => onUpdate({fatigue: parseInt(e.target.value)})}
-                                className="w-full h-3 bg-inputBg rounded-lg appearance-none cursor-pointer accent-primary"/>
-                        </div>
-                    </Card>
-
-                    <Card>
-                        <h3 className="text-xl font-bold text-primary mb-4 flex items-center gap-2">
-                            <span className="material-icons">restaurant</span> 飲食紀錄
-                        </h3>
-                        
-                        {/* 餐別選擇 */}
-                        <div className="flex bg-inputBg rounded-xl p-1 mb-4 overflow-x-auto">
-                            {Object.entries(MEAL_CATEGORIES).map(([key, label]) => (
-                                <button key={key} onClick={() => setSelectedCategory(key)}
-                                    className={`flex-1 py-2 px-2 rounded-lg font-bold text-sm whitespace-nowrap transition-all ${selectedCategory === key ? 'bg-white shadow text-primary' : 'text-gray-400'}`}>
-                                    {label}
-                                </button>
-                            ))}
-                        </div>
-
-                        <div className="flex gap-2 mb-2">
-                            <button onClick={() => setManualMode(false)} className={`flex-1 py-2 rounded-lg font-bold text-sm ${!manualMode ? 'bg-primary text-white' : 'bg-inputBg text-secondary'}`}>
-                                {apiKey ? '✨ AI 智能輸入' : '快速輸入'}
-                            </button>
-                            <button onClick={() => setManualMode(true)} className={`flex-1 py-2 rounded-lg font-bold text-sm ${manualMode ? 'bg-primary text-white' : 'bg-inputBg text-secondary'}`}>
-                                手動輸入
-                            </button>
-                        </div>
-
-                        {!manualMode ? (
-                            <div className="flex gap-2 mb-4">
-                                <button onClick={()=>setShowFavModal(true)} className="bg-yellow-400 text-white px-3 rounded-xl shadow-md flex items-center justify-center">
-                                    <span className="material-icons">star</span>
-                                </button>
-                                <input type="text" placeholder={apiKey ? "輸入餐點 (AI 自動分析)" : "輸入餐點"}
-                                    className="flex-1 bg-inputBg rounded-xl p-4 text-lg border-none min-w-0"
-                                    value={mealInput} onChange={e => setMealInput(e.target.value)} 
-                                    onKeyDown={e => e.key === 'Enter' && !analyzing && handleAdd()}
-                                />
-                                <button onClick={() => handleAdd()} disabled={analyzing} className="bg-primary text-white px-4 rounded-xl text-xl shadow-md min-w-[50px] flex items-center justify-center">
-                                    {analyzing ? <span className="material-icons animate-spin text-lg">sync</span> : '+'}
-                                </button>
-                            </div>
-                        ) : (
-                            <div className="bg-inputBg p-4 rounded-xl mb-4 space-y-2">
-                                <input placeholder="名稱" className="w-full p-2 rounded" value={manualMeal.name} onChange={e=>setManualMeal({...manualMeal, name: e.target.value})}/>
-                                <div className="grid grid-cols-4 gap-2">
-                                    <input type="number" placeholder="熱量" className="p-2 rounded" value={manualMeal.calories} onChange={e=>setManualMeal({...manualMeal, calories: e.target.value})}/>
-                                    <input type="number" placeholder="蛋" className="p-2 rounded" value={manualMeal.protein} onChange={e=>setManualMeal({...manualMeal, protein: e.target.value})}/>
-                                    <input type="number" placeholder="碳" className="p-2 rounded" value={manualMeal.carbs} onChange={e=>setManualMeal({...manualMeal, carbs: e.target.value})}/>
-                                    <input type="number" placeholder="脂" className="p-2 rounded" value={manualMeal.fat} onChange={e=>setManualMeal({...manualMeal, fat: e.target.value})}/>
-                                </div>
-                                <button onClick={() => handleAdd()} className="w-full bg-secondary text-white py-2 rounded font-bold">新增</button>
-                            </div>
-                        )}
-
-                        {/* 列表顯示 (分組) */}
-                        <div className="space-y-4">
-                            {['breakfast', 'lunch', 'dinner', 'snack'].map(catKey => {
-                                const groupMeals = mealsByCategory[catKey];
-                                if (!groupMeals.length) return null;
-                                return (
-                                    <div key={catKey}>
-                                        <h4 className="text-sm font-bold text-gray-400 mb-2 pl-1 border-b border-gray-100 pb-1">{MEAL_CATEGORIES[catKey]}</h4>
-                                        <ul className="space-y-2">
-                                            {groupMeals.map((m) => (
-                                                <li key={m.id} className="flex justify-between items-center bg-inputBg p-3 rounded-xl">
-                                                    <div className="flex-1">
-                                                        <div className="text-base font-bold text-secondary flex items-center gap-1">
-                                                            {m.name}
-                                                            <button onClick={() => onToggleFavorite(m)} className="text-yellow-400 opacity-50 hover:opacity-100">
-                                                                <span className="material-icons text-base">star_border</span>
-                                                            </button>
-                                                        </div>
-                                                        <div className="text-xs text-gray-500">
-                                                            {m.calories} kcal (P{m.protein} C{m.carbs} F{m.fat})
-                                                        </div>
-                                                    </div>
-                                                    <button onClick={() => deleteMeal(m.id)} className="text-red-400 p-2">
-                                                        <span className="material-icons text-lg">delete</span>
-                                                    </button>
-                                                </li>
-                                            ))}
-                                        </ul>
-                                    </div>
-                                )
-                            })}
-                            {(!data.meals || data.meals.length === 0) && (
-                                <div className="text-center text-gray-400 py-4 text-sm">尚無紀錄</div>
-                            )}
-                        </div>
-                    </Card>
-
-                    <Card>
-                        <h3 className="text-xl font-bold text-primary mb-4 flex items-center gap-2">
-                            <span className="material-icons">fitness_center</span> 運動紀錄
-                        </h3>
-                        <div className
+            const remainingCal = currentTargets.
