@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Nicole 2026 美夢成真計畫 v2.5 (Final)</title>
+    <title>Nicole 2026 美夢成真計畫 v3.0 (Expanded)</title>
     
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌿</text></svg>">
     <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/4322/4322991.png">
@@ -67,7 +67,7 @@
     </script>
 
     <script type="text/babel">
-        // 1. Firebase
+        // 1. Firebase 初始化
         const firebaseConfig = {
             apiKey: "AIzaSyD6FsP4PtdeeD_uuIRnWbbLzsKwHlgS9cM",
             authDomain: "health-tracker-b37e4.firebaseapp.com",
@@ -80,7 +80,7 @@
         const auth = firebase.auth();
         const db = firebase.firestore();
 
-        // 2. Utils
+        // 2. 工具與函式
         const { useState, useEffect, useMemo, useRef } = React;
         const Recharts = window.Recharts || {};
         const { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } = Recharts;
@@ -88,6 +88,7 @@
         const getTodayString = () => { const d = new Date(); const off = d.getTimezoneOffset() * 60000; return new Date(d.getTime() - off).toISOString().split('T')[0]; };
         const shiftDate = (d, n) => { const dt = new Date(d); dt.setDate(dt.getDate() + n); return dt.toISOString().split('T')[0]; };
         const MEAL_CATEGORIES = { 'breakfast': '早餐', 'lunch': '午餐', 'dinner': '晚餐', 'snack': '點心' };
+        
         const getDefaultMealCategory = () => {
             const h = new Date().getHours();
             if (h >= 5 && h < 11) return 'breakfast';
@@ -95,6 +96,7 @@
             if (h >= 17 && h < 21) return 'dinner';
             return 'snack';
         };
+        
         const fallbackAnalysis = (text) => {
             let c=0, p=0, cb=0, f=0; const t = text.toLowerCase();
             if (t.includes('雞') || t.includes('肉') || t.includes('魚')) { c+=200; p+=25; f+=10; }
@@ -105,7 +107,7 @@
             return { name: text, calories: c, protein: p, carbs: cb, fat: f };
         };
 
-        // 3. Components
+        // 3. 通用元件
         const Loading = () => {
             const [s, setS] = useState(false);
             useEffect(() => { const t = setTimeout(() => setS(true), 5000); return () => clearTimeout(t); }, []);
@@ -117,37 +119,14 @@
                 </div>
             );
         };
-        const Card = ({ children, className = "", onClick }) => <div onClick={onClick} className={`bg-cardBg rounded-2xl p-6 card-shadow border border-borderBeige ${className}`}>{children}</div>;
-        const Button = ({ children, onClick, variant = 'primary', className = "", disabled=false }) => {
-            const s = { primary: "bg-primary text-white shadow-lg", secondary: "bg-secondary text-white", outline: "border-2 border-primary text-primary bg-transparent" };
-            return <button onClick={onClick} disabled={disabled} className={`w-full py-4 rounded-xl font-bold text-lg active:scale-95 flex items-center justify-center gap-2 disabled:opacity-50 ${s[variant]} ${className}`}>{children}</button>;
-        };
-        const InputGroup = ({ label, value, onChange, type = "text", placeholder }) => (
-            <div className="mb-4"><label className="block text-secondary mb-2 font-bold">{label}</label><input type={type} value={value} onChange={onChange} placeholder={placeholder} className="w-full bg-inputBg rounded-xl p-4 text-primary font-bold border-none" /></div>
+
+        const Card = ({ children, className = "", onClick }) => (
+            <div onClick={onClick} className={`bg-cardBg rounded-2xl p-6 card-shadow border border-borderBeige ${className}`}>
+                {children}
+            </div>
         );
 
-        // 4. Pages
-        const Dashboard = ({ data, targets, totals, onQuickAdd, onCopy, isWorkoutDay }) => {
-            const currentTargets = isWorkoutDay ? targets.workout : targets.rest;
-            const remainingCal = currentTargets.calories - totals.cal;
-            const getAdvice = () => {
-                if (data.water < targets.water * 0.5) return { icon: 'water_drop', text: "水分不足，快喝杯水！", color: "text-blue-500" };
-                if (totals.pro < currentTargets.protein * 0.4) return { icon: 'egg_alt', text: "蛋白質落後，多吃肉或蛋。", color: "text-primary" };
-                if (isWorkoutDay) return { icon: 'fitness_center', text: "訓練日目標已調高！", color: "text-orange-500" };
-                return { icon: 'thumb_up', text: "狀態不錯，繼續保持！", color: "text-primary" };
-            };
-            const advice = getAdvice();
+        const Button = ({ children, onClick, variant = 'primary', className = "", disabled=false }) => {
+            const s = { primary: "bg-primary text-white shadow-lg", secondary: "bg-secondary text-white", outline: "border-2 border-primary text-primary bg-transparent" };
             return (
-                <div className="space-y-6 animate-fade-in">
-                    <Card className="bg-primary text-white border-none">
-                        <div className="flex justify-between items-start mb-4">
-                            <div><h2 className="text-white/90 text-lg">今日剩餘</h2><div className="big-num">{Math.round(remainingCal)}</div><div className="text-white/80 text-sm">kcal</div></div>
-                            <div className="text-right"><div className={`px-3 py-1 rounded-full text-sm font-bold inline-block mb-1 ${isWorkoutDay ? 'bg-orange-400 text-white' : 'bg-white/20'}`}>{isWorkoutDay ? '🔥 運動日' : '☕ 休息日'}</div><div className="text-white/90 text-sm">攝取 {Math.round(totals.cal)} / {currentTargets.calories}</div></div>
-                        </div>
-                        <div className="grid grid-cols-3 gap-2 mt-4">
-                            <div className="bg-white/10 p-2 rounded-lg text-center"><div className="text-xs opacity-70">蛋白質</div><div className="font-bold">{Math.round(totals.pro)}/{currentTargets.protein}</div></div>
-                            <div className="bg-white/10 p-2 rounded-lg text-center"><div className="text-xs opacity-70">碳水</div><div className="font-bold">{Math.round(totals.carb)}/{currentTargets.carbs}</div></div>
-                            <div className="bg-white/10 p-2 rounded-lg text-center"><div className="text-xs opacity-70">脂肪</div><div className="font-bold">{Math.round(totals.fat)}/{currentTargets.fat}</div></div>
-                        </div>
-                    </Card>
-                    <Card className="flex items-center gap-4 bg-yellow-50 border-yellow-100"><span className={`material-icons text-3xl ${advice.color}`}>{advice.icon}</span><div><h3 className="font-bold text-secondary">AI 小助手</h3><p className="text
+                <button onClick={onClick} disabled={disabled} className={`w-full py-4 rounded-xl font-bold text-
