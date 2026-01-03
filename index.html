@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Nicole 2026 美夢成真計畫 v3.3 (Deep Debug)</title>
+    <title>Nicole 2026 美夢成真計畫 v3.1</title>
     
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌿</text></svg>">
     <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/4322/4322991.png">
@@ -19,17 +19,7 @@
                         bgMain: '#FFFBF5', cardBg: '#FFFFFF', primary: '#4A5D23', secondary: '#6B5E52',
                         inputBg: '#F5F2EB', borderBeige: '#E8E4D9', activeTab: '#4A5D23', inactiveTab: '#A8A29E'
                     },
-                    borderRadius: { 'xl': '14px', '2xl': '20px' },
-                    animation: {
-                        'fade-in': 'fadeIn 0.5s ease-out',
-                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-                    },
-                    keyframes: {
-                        fadeIn: {
-                            '0%': { opacity: '0', transform: 'translateY(10px)' },
-                            '100%': { opacity: '1', transform: 'translateY(0)' },
-                        }
-                    }
+                    borderRadius: { 'xl': '14px', '2xl': '20px' }
                 }
             }
         }
@@ -57,20 +47,16 @@
         input:focus, textarea:focus { outline: 2px solid #4A5D23; background-color: #ffffff; }
         .markdown-body p { margin-bottom: 1em; line-height: 1.6; }
         .markdown-body ul { list-style: disc; padding-left: 1.5em; margin-bottom: 1em; }
-        .chat-bubble { max-width: 85%; padding: 12px 16px; border-radius: 18px; line-height: 1.5; margin-bottom: 8px; position: relative; word-wrap: break-word; }
+        .chat-bubble { max-width: 85%; padding: 12px 16px; border-radius: 18px; line-height: 1.5; margin-bottom: 8px; position: relative; }
         .chat-user { background-color: #4A5D23; color: white; align-self: flex-end; border-bottom-right-radius: 4px; }
         .chat-ai { background-color: #F5F2EB; color: #4A5D23; align-self: flex-start; border-bottom-left-radius: 4px; }
         .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 50; display: flex; align-items: center; justify-content: center; }
-        /* Hide scrollbar for Chrome, Safari and Opera */
-        .hide-scrollbar::-webkit-scrollbar { display: none; }
-        /* Hide scrollbar for IE, Edge and Firefox */
-        .hide-scrollbar { -ms-overflow-style: none;  scrollbar-width: none; }
     </style>
 </head>
 <body>
     <div id="root">
         <div style="height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; color: #4A5D23;">
-            <div style="font-size: 40px; margin-bottom: 20px;" class="animate-bounce">🌿</div>
+            <div style="font-size: 40px; margin-bottom: 20px;">🌿</div>
             <div>正在啟動 Health Log...</div>
             <div id="error-msg" style="font-size: 12px; margin-top: 20px; color: red; max-width: 80%; text-align: center;"></div>
         </div>
@@ -84,7 +70,6 @@
 
     <script type="text/babel">
         // --- Firebase 設定 ---
-        // 請確保這裡的 config 與你的 Firebase Console 一致
         const firebaseConfig = {
             apiKey: "AIzaSyD6FsP4PtdeeD_uuIRnWbbLzsKwHlgS9cM",
             authDomain: "health-tracker-b37e4.firebaseapp.com",
@@ -94,6 +79,7 @@
             appId: "1:802888614022:web:e7ec85eef3dfc088aed107"
         };
 
+        // 安全初始化
         if (typeof firebase !== 'undefined' && !firebase.apps.length) {
             firebase.initializeApp(firebaseConfig);
         }
@@ -104,72 +90,6 @@
         const { useState, useEffect, useMemo, useRef } = React;
         const Recharts = window.Recharts || {};
         const { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } = Recharts;
-
-        // --- AI API 核心函式 (已修復) ---
-        // 使用更穩定的模型名稱，並增加錯誤處理
-        const callGeminiAPI = async (apiKey, prompt, isJson = false) => {
-            // 加入更多備援模型，包含最新的 2.0-flash-exp 和 1.5-flash-8b
-            const models = ['gemini-1.5-flash', 'gemini-2.0-flash-exp', 'gemini-1.5-flash-8b', 'gemini-1.5-pro', 'gemini-pro']; 
-            let lastError = null;
-            
-            // 強制清除 Key 的空白
-            const cleanKey = apiKey.trim();
-
-            for (const model of models) {
-                try {
-                    const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${cleanKey}`;
-                    
-                    const payload = {
-                        contents: [{ parts: [{ text: prompt }] }]
-                    };
-                    
-                    // JSON Mode: 僅 1.5 以上版本支援，且 2.0 也支援
-                    if (isJson && (model.includes('1.5') || model.includes('2.0'))) {
-                        payload.generationConfig = { response_mime_type: "application/json" };
-                    }
-
-                    const response = await fetch(API_URL, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(payload)
-                    });
-
-                    if (!response.ok) {
-                        const errText = await response.text();
-                        let errorDetail = "";
-                        try {
-                            const errObj = JSON.parse(errText);
-                            errorDetail = errObj.error?.message || errText;
-                        } catch(e) {
-                            errorDetail = errText;
-                        }
-
-                        // 如果是 404 (Model not found) 或 429 (Quota)，嘗試下一個模型
-                        if (response.status === 404 || response.status === 429 || response.status === 503) {
-                            console.warn(`Model ${model} failed (${response.status}), trying next...`);
-                            lastError = new Error(`${response.status}: ${errorDetail}`);
-                            continue;
-                        }
-                        // 其他錯誤 (如 400 key 無效, 403 權限不足) 直接丟出，不嘗試其他模型
-                        throw new Error(`${response.status}: ${errorDetail}`);
-                    }
-
-                    const result = await response.json();
-                    if (!result.candidates || !result.candidates[0].content) {
-                        throw new Error("API 回傳格式異常，沒有 candidates");
-                    }
-                    return result.candidates[0].content.parts[0].text;
-                } catch (e) {
-                    lastError = e;
-                    console.error(`Error with model ${model}:`, e);
-                    // 如果是 Key 相關錯誤，不需要換模型，直接失敗
-                    if (e.message.includes('400') || e.message.includes('403') || e.message.includes('API key')) {
-                        throw e;
-                    }
-                }
-            }
-            throw lastError || new Error("所有 AI 模型皆連線失敗，請檢查網路或 API Key");
-        };
 
         // --- 工具函式 ---
         const getTodayString = () => {
@@ -197,19 +117,130 @@
         const fallbackAnalysis = (text) => {
             let c=0, p=0, cb=0, f=0;
             const t = text.toLowerCase();
-            // 簡單估算邏輯
-            if (t.includes('雞') || t.includes('肉') || t.includes('魚') || t.includes('牛') || t.includes('豬')) { c+=200; p+=25; f+=10; }
-            if (t.includes('飯') || t.includes('粥') || t.includes('麵') || t.includes('粉')) { c+=280; p+=4; cb+=60; }
-            if (t.includes('菜') || t.includes('蔬') || t.includes('沙拉')) { c+=50; cb+=10; }
+            if (t.includes('雞') || t.includes('肉') || t.includes('魚')) { c+=200; p+=25; f+=10; }
+            if (t.includes('飯') || t.includes('粥') || t.includes('麵')) { c+=280; p+=4; cb+=60; }
+            if (t.includes('菜') || t.includes('蔬')) { c+=50; cb+=10; }
             if (t.includes('蛋')) { c+=75; p+=7; f+=5; }
-            if (t.includes('果') || t.includes('banana') || t.includes('apple')) { c+=90; cb+=23; }
-            if (t.includes('奶') || t.includes('拿鐵')) { c+=120; p+=6; f+=6; }
-            if (c===0 && t.length > 0) c=200; // 預設值
-            // 加入一個標記，標示這是估算的
-            return { name: text, calories: c, protein: p, carbs: cb, fat: f, isFallback: true };
+            if (t.includes('香蕉')) { c+=90; cb+=23; }
+            if (c===0 && t.length > 0) c=200;
+            return { name: text, calories: c, protein: p, carbs: cb, fat: f };
         };
 
-        // --- UI 元件 ---
+        
+        // --- Gemini API 工具 (修正版：v1beta + 依官方 REST 格式 + responseMimeType) ---
+        // 參考：Gemini API 官方文件：REST endpoint 為 v1beta，GenerationConfig 支援 responseMimeType（JSON Mode）
+        const GEMINI_API_BASE = "https://generativelanguage.googleapis.com";
+        const GEMINI_API_VERSION = "v1beta";
+        const GEMINI_DEFAULT_MODEL = "gemini-2.0-flash"; // 若你想換模型，可改這裡
+
+        const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+        const geminiExtractText = (data) => {
+            try {
+                const parts = data?.candidates?.[0]?.content?.parts || [];
+                return parts.map(p => p?.text || "").join("").trim();
+            } catch {
+                return "";
+            }
+        };
+
+        const safeParseJsonFromText = (text) => {
+            if (!text) return null;
+            let t = String(text).trim();
+
+            // 去掉可能的 code fence
+            t = t.replace(/^```(?:json)?\s*/i, "").replace(/```\s*$/i, "").trim();
+
+            // 若有多餘文字，嘗試擷取第一段 JSON (object 或 array)
+            const firstObj = t.indexOf("{");
+            const lastObj = t.lastIndexOf("}");
+            const firstArr = t.indexOf("[");
+            const lastArr = t.lastIndexOf("]");
+
+            if (firstArr !== -1 && (firstObj === -1 || firstArr < firstObj) && lastArr !== -1) {
+                t = t.slice(firstArr, lastArr + 1);
+            } else if (firstObj !== -1 && lastObj !== -1 && lastObj > firstObj) {
+                t = t.slice(firstObj, lastObj + 1);
+            }
+
+            try { return JSON.parse(t); } catch { return null; }
+        };
+
+        const geminiGenerateContent = async ({
+            apiKey,
+            prompt,
+            model = GEMINI_DEFAULT_MODEL,
+            responseMimeType = null,
+            generationConfig = {},
+            retries = 2,
+            timeoutMs = 30000,
+        }) => {
+            if (!apiKey) throw new Error("Missing Gemini API key");
+
+            const url = `${GEMINI_API_BASE}/${GEMINI_API_VERSION}/models/${model}:generateContent?key=${encodeURIComponent(apiKey)}`;
+
+            const payload = {
+                contents: [{ role: "user", parts: [{ text: prompt }] }],
+            };
+
+            const gc = { ...generationConfig };
+            if (responseMimeType) gc.responseMimeType = responseMimeType;
+            if (Object.keys(gc).length) payload.generationConfig = gc;
+
+            let lastErr = null;
+
+            for (let attempt = 0; attempt <= retries; attempt++) {
+                const controller = new AbortController();
+                const timer = setTimeout(() => controller.abort(), timeoutMs);
+
+                try {
+                    const res = await fetch(url, {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify(payload),
+                        signal: controller.signal,
+                    });
+
+                    clearTimeout(timer);
+
+                    const data = await res.json().catch(() => ({}));
+
+                    if (res.ok) return data;
+
+                    const message = data?.error?.message || `HTTP ${res.status}`;
+                    const err = new Error(message);
+                    err.status = res.status;
+                    err.data = data;
+
+                    // 429/503/500：做簡單退避重試（避免偶發或瞬間超量）
+                    if ((res.status === 429 || res.status === 503 || res.status === 500) && attempt < retries) {
+                        const delay = Math.round(700 * Math.pow(2, attempt) + Math.random() * 250);
+                        await sleep(delay);
+                        continue;
+                    }
+
+                    throw err;
+                } catch (e) {
+                    clearTimeout(timer);
+                    lastErr = e;
+
+                    // timeout 或網路不穩：也嘗試重試
+                    const isAbort = e?.name === "AbortError";
+                    if (attempt < retries && (isAbort || !("status" in e))) {
+                        const delay = Math.round(700 * Math.pow(2, attempt) + Math.random() * 250);
+                        await sleep(delay);
+                        continue;
+                    }
+                    throw e;
+                }
+            }
+
+            throw lastErr || new Error("Gemini request failed");
+        };
+
+// --- UI 元件 ---
         const Loading = () => {
             const [showReset, setShowReset] = useState(false);
             useEffect(() => {
@@ -256,7 +287,7 @@
                 <div className="mb-4">
                     <label className="block text-secondary mb-2 font-bold">{label}</label>
                     <input type={type} value={value} onChange={onChange} placeholder={placeholder}
-                        className="w-full bg-inputBg rounded-xl p-4 text-primary font-bold border-none focus:ring-2 focus:ring-primary/50" />
+                        className="w-full bg-inputBg rounded-xl p-4 text-primary font-bold border-none" />
                 </div>
             );
         };
@@ -334,33 +365,38 @@
             const [selectedCategory, setSelectedCategory] = useState(getDefaultMealCategory());
             const [manualMeal, setManualMeal] = useState({ name: '', calories: '', protein: '', carbs: '', fat: '' });
             const [showFavModal, setShowFavModal] = useState(false);
-            const [aiError, setAiError] = useState(null); // 新增：用於顯示具體錯誤
 
-            const analyzeMeal = async (text) => {
-                setAiError(null);
+            const analyzeWithAI = async (text) => {
                 if (!apiKey) return fallbackAnalysis(text);
                 try {
-                    const prompt = `分析食物營養：${text}。請回傳純 JSON 格式，不要有 markdown code block，格式為：{"name": "${text}", "calories": 數字, "protein": 數字, "carbs": 數字, "fat": 數字}。確保欄位為小寫英文。`;
-                    
-                    const resultText = await callGeminiAPI(apiKey, prompt, true);
-                    
-                    // 嘗試解析 JSON (處理有時 AI 還是回傳 markdown 的情況)
-                    let cleanJson = resultText.replace(/```json/g, '').replace(/```/g, '').trim();
-                    const parsed = JSON.parse(cleanJson);
-                    
-                    return { 
-                        name: parsed.name || text, 
-                        calories: Number(parsed.calories) || 0, 
-                        protein: Number(parsed.protein) || 0, 
-                        carbs: Number(parsed.carbs) || 0, 
-                        fat: Number(parsed.fat) || 0,
-                        isFallback: false
+                    const prompt = "分析食物營養：" + text + "。請只回傳 JSON 格式：{\"name\":\"食物名稱\",\"calories\":數字,\"protein\":數字,\"carbs\":數字,\"fat\":數字}。確保欄位為小寫英文，且不要加任何多餘文字。";
+
+                    const data = await geminiGenerateContent({
+                        apiKey,
+                        prompt,
+                        model: GEMINI_DEFAULT_MODEL,
+                        responseMimeType: "application/json",
+                        generationConfig: { temperature: 0.2, maxOutputTokens: 256 }
+                    });
+
+                    const outputText = geminiExtractText(data);
+                    const parsed = safeParseJsonFromText(outputText);
+
+                    if (!parsed) {
+                        throw new Error("AI 回傳不是可解析的 JSON");
+                    }
+
+                    return {
+                        name: String(parsed.name || text),
+                        calories: Number(parsed.calories) || 0,
+                        protein: Number(parsed.protein) || 0,
+                        carbs: Number(parsed.carbs) || 0,
+                        fat: Number(parsed.fat) || 0
                     };
-                } catch (e) { 
-                    console.error("AI Analysis Failed:", e);
-                    // 設定詳細錯誤訊息給使用者看
-                    setAiError(e.message);
-                    return fallbackAnalysis(text); 
+                } catch (e) {
+                    console.error(e);
+                    alert("AI 分析失敗 (" + (e.message || "unknown") + ")，已切換至估算模式");
+                    return fallbackAnalysis(text);
                 }
             };
 
@@ -368,13 +404,13 @@
                 let toAdd = override;
                 if (!toAdd) {
                     if(manualMode) {
-                        toAdd = { name: manualMeal.name || '自訂', calories: Number(manualMeal.calories), protein: Number(manualMeal.protein), carbs: Number(manualMeal.carbs), fat: Number(manualMeal.fat), isFallback: false };
+                        toAdd = { name: manualMeal.name || '自訂', calories: Number(manualMeal.calories), protein: Number(manualMeal.protein), carbs: Number(manualMeal.carbs), fat: Number(manualMeal.fat) };
                         setManualMeal({ name: '', calories: '', protein: '', carbs: '', fat: '' }); setManualMode(false);
                     } else {
                         if (!mealInput) return;
                         if (apiKey) { 
                             setAnalyzing(true); 
-                            toAdd = await analyzeMeal(mealInput); 
+                            toAdd = await analyzeWithAI(mealInput); 
                             setAnalyzing(false); 
                         } else { 
                             toAdd = fallbackAnalysis(mealInput); 
@@ -434,25 +470,18 @@
                         </div>
                         
                         {!manualMode ? (
-                            <div className="mb-4">
-                                <div className="flex gap-2">
-                                    <button onClick={()=>setShowFavModal(true)} className="bg-yellow-400 text-white px-3 rounded-xl shadow-md flex items-center justify-center">
-                                        <span className="material-icons">star</span>
-                                    </button>
-                                    <input type="text" placeholder={apiKey ? "輸入餐點 (AI)" : "輸入餐點"} 
-                                        className="flex-1 bg-inputBg rounded-xl p-4 text-lg border-none min-w-0" 
-                                        value={mealInput} onChange={e => setMealInput(e.target.value)} 
-                                        onKeyDown={e => e.key === 'Enter' && !analyzing && handleAdd()} />
-                                    <button onClick={() => handleAdd()} disabled={analyzing} 
-                                        className="bg-primary text-white px-4 rounded-xl text-xl shadow-md min-w-[50px] flex items-center justify-center">
-                                        {analyzing ? <span className="material-icons animate-spin text-lg">sync</span> : '+'}
-                                    </button>
-                                </div>
-                                {aiError && (
-                                    <div className="mt-2 text-xs text-red-500 bg-red-50 p-2 rounded border border-red-100 break-all">
-                                        <strong>⚠️ AI 連線失敗：</strong> {aiError}
-                                    </div>
-                                )}
+                            <div className="flex gap-2 mb-4">
+                                <button onClick={()=>setShowFavModal(true)} className="bg-yellow-400 text-white px-3 rounded-xl shadow-md flex items-center justify-center">
+                                    <span className="material-icons">star</span>
+                                </button>
+                                <input type="text" placeholder={apiKey ? "輸入餐點 (AI)" : "輸入餐點"} 
+                                    className="flex-1 bg-inputBg rounded-xl p-4 text-lg border-none min-w-0" 
+                                    value={mealInput} onChange={e => setMealInput(e.target.value)} 
+                                    onKeyDown={e => e.key === 'Enter' && !analyzing && handleAdd()} />
+                                <button onClick={() => handleAdd()} disabled={analyzing} 
+                                    className="bg-primary text-white px-4 rounded-xl text-xl shadow-md min-w-[50px] flex items-center justify-center">
+                                    {analyzing ? <span className="material-icons animate-spin text-lg">sync</span> : '+'}
+                                </button>
                             </div>
                         ) : (
                             <div className="bg-inputBg p-4 rounded-xl mb-4 space-y-2">
@@ -480,7 +509,6 @@
                                                     <div className="flex-1">
                                                         <div className="text-base font-bold text-secondary flex items-center gap-1">
                                                             {m.name}
-                                                            {m.isFallback && <span className="text-[10px] text-red-400 bg-red-50 px-1 rounded ml-1 border border-red-100">估算</span>}
                                                             <button onClick={() => onToggleFavorite(m)} className="text-yellow-400 opacity-50 hover:opacity-100"><span className="material-icons text-base">star_border</span></button>
                                                         </div>
                                                         <div className="text-xs text-gray-500">{m.calories} kcal (P{m.protein} C{m.carbs} F{m.fat})</div>
@@ -559,35 +587,67 @@
                 if (!apiKey) return alert("請先設定 API Key");
                 setGenerating(true);
                 try {
-                    const logsRef = db.collection('artifacts/health-tracker-v1/users/'+user.uid+'/daily_logs').orderBy(firebase.firestore.FieldPath.documentId()).limitToLast(7);
+                    const logsRef = db.collection('artifacts/health-tracker-v1/users/' + user.uid + '/daily_logs')
+                        .orderBy(firebase.firestore.FieldPath.documentId())
+                        .limitToLast(7);
+
                     const snap = await logsRef.get();
-                    if (snap.empty) { alert("沒有足夠的資料可以生成週報"); setGenerating(false); return; }
-                    
-                    const data = snap.docs.map(d => d.id + ": " + JSON.stringify(d.data())).join('\n');
-                    const prompt = "週報分析：\n\n" + data;
-                    
-                    const text = await callGeminiAPI(apiKey, prompt);
-                    setReport(text);
-                } catch (e) { 
-                    alert("生成失敗: " + e.message); 
-                } finally { 
-                    setGenerating(false); 
+                    const data = snap.docs
+                        .map(d => d.id + ": " + JSON.stringify(d.data()))
+                        .join('\n');
+
+                    const prompt = `週報分析：
+
+${data}
+
+請用繁體中文輸出一份簡短週報：
+1) 本週總覽
+2) 亮點
+3) 可改善
+4) 下週建議
+（用條列即可）`;
+
+
+                    const result = await geminiGenerateContent({
+                        apiKey,
+                        prompt,
+                        model: GEMINI_DEFAULT_MODEL,
+                        generationConfig: { temperature: 0.4, maxOutputTokens: 900 }
+                    });
+
+                    setReport(geminiExtractText(result) || "（AI 沒有回傳內容）");
+                } catch (e) {
+                    alert("生成失敗: " + (e.message || "unknown"));
+                } finally {
+                    setGenerating(false);
                 }
             };
 
             const sendChat = async () => {
                 if (!input.trim() || !apiKey) return;
-                const userMsg = input; 
-                setMessages(prev => [...prev, {role: 'user', text: userMsg}]); 
-                setInput(''); 
+                const userMsg = input;
+                setMessages(prev => [...prev, { role: 'user', text: userMsg }]);
+                setInput('');
                 setChatting(true);
                 try {
-                    const text = await callGeminiAPI(apiKey, "教練回答：" + userMsg);
-                    setMessages(prev => [...prev, {role: 'ai', text: text}]);
-                } catch (e) { 
-                    setMessages(prev => [...prev, {role: 'ai', text: '連線失敗: ' + e.message}]); 
-                } finally { 
-                    setChatting(false); 
+                    const historyText = messages.map(m => (m.role === 'user' ? "使用者：" : "教練：") + m.text).join("\n");
+                    const prompt = "你是一位溫柔但務實的健康教練，用繁體中文回答。\n" +
+                                   historyText + "\n" +
+                                   "使用者：" + userMsg + "\n" +
+                                   "教練：";
+
+                    const result = await geminiGenerateContent({
+                        apiKey,
+                        prompt,
+                        model: GEMINI_DEFAULT_MODEL,
+                        generationConfig: { temperature: 0.6, maxOutputTokens: 512 }
+                    });
+
+                    setMessages(prev => [...prev, { role: 'ai', text: geminiExtractText(result) || "（AI 沒有回傳內容）" }]);
+                } catch (e) {
+                    setMessages(prev => [...prev, { role: 'ai', text: '連線失敗：' + (e.message || 'unknown') }]);
+                } finally {
+                    setChatting(false);
                 }
             };
 
@@ -668,20 +728,6 @@
 
         const SettingsPage = ({ user, targets, setTargets, apiKey, setApiKey, onSave, localSyncId, setLocalSyncId, currentId }) => {
             const [tab, setTab] = useState('rest'); 
-            const [testing, setTesting] = useState(false);
-
-            const testApi = async () => {
-                setTesting(true);
-                try {
-                    await callGeminiAPI(apiKey, "Hi");
-                    alert("✅ 連線成功！API Key 運作正常。");
-                } catch(e) {
-                    alert("❌ 連線失敗: " + e.message + "\n\n請確認：\n1. Key 是否來自 Google AI Studio (非 Vertex)\n2. 是否有多餘空格");
-                } finally {
-                    setTesting(false);
-                }
-            };
-
             return (
                 <div className="space-y-6 pb-20">
                     <Card>
@@ -718,10 +764,6 @@
                     <Card>
                         <h3 className="text-xl font-bold text-primary mb-4">系統設定</h3>
                         <InputGroup label="Gemini API Key" type="password" value={apiKey} onChange={e => setApiKey(e.target.value)} placeholder="AIzaSy..." />
-                        {apiKey && <button onClick={testApi} disabled={testing} className="text-sm text-blue-500 underline mb-2 block">{testing?'測試中...':'測試連線'}</button>}
-                        <div className="text-xs text-gray-400">
-                            請至 <a href="https://aistudio.google.com/app/apikey" target="_blank" className="underline">Google AI Studio</a> 申請 Key (非 Vertex AI)。
-                        </div>
                     </Card>
                     <Button onClick={onSave}>儲存所有設定</Button>
                 </div>
