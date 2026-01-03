@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Nicole 2026 Health Log (MVP v1.1)</title>
+  <title>Nicole 2026 Health Log (MVP v1.1-fix1)</title>
 
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌿</text></svg>">
   <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/4322/4322991.png">
@@ -33,6 +33,7 @@
   <script crossorigin src="https://unpkg.com/react@18.2.0/umd/react.production.min.js"></script>
   <script crossorigin src="https://unpkg.com/react-dom@18.2.0/umd/react-dom.production.min.js"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script src="https://unpkg.com/prop-types@15.8.1/prop-types.min.js"></script>
   <script src="https://unpkg.com/recharts@2.10.3/umd/Recharts.js"></script>
 
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
@@ -56,7 +57,7 @@
   <div id="root">
     <div style="height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; color: #4A5D23;">
       <div style="font-size: 40px; margin-bottom: 20px;">🌿</div>
-      <div>正在啟動 Health Log (MVP v1.1)...</div>
+      <div>正在啟動 Health Log (MVP v1.1-fix1)...</div>
       <div style="font-size: 12px; margin-top: 10px; color: #999;">如果一直停在這裡，請打開 DevTools Console 看錯誤訊息。</div>
     </div>
   </div>
@@ -290,16 +291,57 @@
       // 429 時做 2 次小延遲重試
       for (let attempt=0; attempt<3; attempt++) {
         try {
-          const res = await fetch(endpoint, {
+          const schema = {
+        type: "OBJECT",
+        properties: {
+          name: { type: "STRING" },
+          calories: { type: "NUMBER" },
+          protein: { type: "NUMBER" },
+          carbs: { type: "NUMBER" },
+          fat: { type: "NUMBER" }
+        },
+        required: ["name","calories","protein","carbs","fat"]
+      };
+
+          // 先嘗試 Structured JSON（如果 API/模型不支援，會在 400 時 fallback）
+          const payloadWithSchema = {
+            contents: [{ parts: [{ text: prompt }] }],
+            generationConfig: {
+              temperature: 0.2,
+              maxOutputTokens: 256,
+              // 某些版本是 responseMimeType/responseSchema；如果不支援會走 fallback
+              responseMimeType: "application/json",
+              responseSchema: schema
+            }
+          };
+
+          const payloadNoSchema = {
+            contents: [{ parts: [{ text: prompt }] }],
+            generationConfig: { temperature: 0.2, maxOutputTokens: 256 }
+          };
+
+          let payload = payloadWithSchema;
+
+          let res = await fetch(endpoint, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              contents: [{ parts: [{ text: prompt }] }],
-              generationConfig: { temperature: 0.2, maxOutputTokens: 256 }
-            })
+            body: JSON.stringify(payload)
           });
 
-          if (res.status === 429 && attempt < 2) { await sleep(450 * (attempt + 1)); continue; }
+          // 若 structured 欄位不被接受（常見 400），就改用一般模式再試一次
+          if (!res.ok && res.status === 400) {
+            payload = payloadNoSchema;
+            res = await fetch(endpoint, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(payload)
+            });
+          }
+
+          // 後面沿用 res
+          // NOTE: 這裡不要 return，讓下方統一處理 429 / error / parse
+
+                    if (res.status === 429 && attempt < 2) { await sleep(450 * (attempt + 1)); continue; }
           if (!res.ok) {
             const err = await res.json().catch(() => ({}));
             const msg = err?.error?.message || ("Gemini API Error " + res.status);
@@ -549,6 +591,8 @@
             analyzed = await analyzeMealWithGemini(input, apiKey);
           }
           if (!analyzed) analyzed = fallbackAnalysis(input);
+          // 不管 AI 成功/失敗，都先快取，避免同一餐點重複打 API
+          setCachedMeal(input.toLowerCase(), analyzed);
 
           const meal = {
             id: uuid(),
@@ -567,6 +611,8 @@
         } catch (e) {
           alert("AI 分析失敗：\n" + (e?.message || String(e)) + "\n\n已改用估算模式加入。");
           const analyzed = fallbackAnalysis(input);
+          // 失敗也快取，避免同一餐點重複出錯＋省額度
+          setCachedMeal(input.toLowerCase(), analyzed);
           onAddMeal({
             id: uuid(),
             category: selectedCategory,
