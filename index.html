@@ -2,15 +2,15 @@
 <html lang="zh-TW">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Nicole 2026 Health Log (MVP v1.1)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <title>Nicole 2026 Health Log (MVP v1.2)</title>
 
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌿</text></svg>">
-  <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/4322/4322991.png">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22[http://www.w3.org/2000/svg%22](http://www.w3.org/2000/svg%22) viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌿</text></svg>">
+  <link rel="apple-touch-icon" href="[https://cdn-icons-png.flaticon.com/512/4322/4322991.png](https://cdn-icons-png.flaticon.com/512/4322/4322991.png)">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="theme-color" content="#FFFBF5">
 
-  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="[https://cdn.tailwindcss.com](https://cdn.tailwindcss.com)"></script>
   <script>
     tailwind.config = {
       theme: {
@@ -30,26 +30,43 @@
     }
   </script>
 
-  <script crossorigin src="https://unpkg.com/react@18.2.0/umd/react.production.min.js"></script>
-  <script crossorigin src="https://unpkg.com/react-dom@18.2.0/umd/react-dom.production.min.js"></script>
-  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-  <script src="https://unpkg.com/prop-types@15.8.1/prop-types.min.js"></script>
-  <script src="https://unpkg.com/recharts@2.10.3/umd/Recharts.js"></script>
+  <script crossorigin src="[https://unpkg.com/react@18.2.0/umd/react.production.min.js](https://unpkg.com/react@18.2.0/umd/react.production.min.js)"></script>
+  <script crossorigin src="[https://unpkg.com/react-dom@18.2.0/umd/react-dom.production.min.js](https://unpkg.com/react-dom@18.2.0/umd/react-dom.production.min.js)"></script>
+  <script src="[https://unpkg.com/@babel/standalone/babel.min.js](https://unpkg.com/@babel/standalone/babel.min.js)"></script>
+  <script src="[https://unpkg.com/prop-types@15.8.1/prop-types.min.js](https://unpkg.com/prop-types@15.8.1/prop-types.min.js)"></script>
+  <script src="[https://unpkg.com/recharts@2.10.3/umd/Recharts.js](https://unpkg.com/recharts@2.10.3/umd/Recharts.js)"></script>
 
-  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+  <script src="[https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js](https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js)"></script>
+  <script src="[https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js](https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js)"></script>
+  <script src="[https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js](https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js)"></script>
 
-  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <link href="[https://fonts.googleapis.com/icon?family=Material+Icons](https://fonts.googleapis.com/icon?family=Material+Icons)" rel="stylesheet">
 
   <style>
     body { background-color: #FFFBF5; color: #4A5D23; font-family: system-ui, -apple-system, sans-serif; -webkit-tap-highlight-color: transparent; overscroll-behavior-y: none; }
-    input, select, button, textarea, p, span, div { font-size: 18px; }
-    h1 { font-size: 24px; } h2 { font-size: 22px; } h3 { font-size: 20px; }
-    .big-num { font-size: 44px; font-weight: 800; line-height: 1; }
+    input, select, button, textarea, p, span, div { font-size: 16px; }
+    h1 { font-size: 24px; } h2 { font-size: 22px; } h3 { font-size: 18px; }
+    .big-num { font-size: 40px; font-weight: 800; line-height: 1; }
     .card-shadow { box-shadow: 0 4px 12px rgba(74, 93, 35, 0.08); }
     input:focus, textarea:focus, select:focus { outline: 2px solid #4A5D23; background-color: #ffffff; }
     .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
+    
+    /* 自定義 Date Input 樣式 */
+    input[type="date"]::-webkit-inner-spin-button,
+    input[type="date"]::-webkit-calendar-picker-indicator {
+        display: none;
+        -webkit-appearance: none;
+    }
+    input[type="date"] {
+      background: transparent;
+      color: inherit;
+      border: none;
+      font-family: monospace;
+      font-weight: bold;
+      text-align: center;
+      width: 110px;
+      cursor: pointer;
+    }
   </style>
 </head>
 
@@ -57,8 +74,8 @@
   <div id="root">
     <div style="height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; color: #4A5D23;">
       <div style="font-size: 40px; margin-bottom: 20px;">🌿</div>
-      <div>正在啟動 Health Log (MVP v1.1)...</div>
-      <div style="font-size: 12px; margin-top: 10px; color: #999;">如果一直停在這裡，請打開 DevTools Console 看錯誤訊息。</div>
+      <div>正在啟動 Health Log (MVP v1.2)...</div>
+      <div style="font-size: 12px; margin-top: 10px; color: #999;">如果一直停在這裡，請檢查網路連線或重新整理。</div>
     </div>
   </div>
 
@@ -113,14 +130,13 @@
 
     const safeText = (s) => (s == null ? "" : String(s)).trim();
 
-    // 用於快取鍵值：去掉多餘空白、統一小寫，避免同一餐點重複打 AI（省額度）
+    // 用於快取鍵值
     const normalizeMealKey = (s) => safeText(s)
       .replace(/\u3000/g, " ")
       .replace(/\s+/g, " ")
       .trim()
       .toLowerCase();
 
-    // 從 "78 kcal"、"P33" 這類字串抓數字
     const numFromAny = (v) => {
       if (v == null) return NaN;
       if (typeof v === "number") return v;
@@ -142,46 +158,46 @@
     // 2) UI 元件
     // ----------------------------
     const Card = ({ children, className = "", onClick }) => (
-      <div onClick={onClick} className={`bg-cardBg rounded-2xl p-6 card-shadow border border-borderBeige ${className}`}>
+      <div onClick={onClick} className={`bg-cardBg rounded-2xl p-5 card-shadow border border-borderBeige ${className}`}>
         {children}
       </div>
     );
 
     const Button = ({ children, onClick, className = "", disabled=false, title }) => (
       <button title={title} onClick={onClick} disabled={disabled}
-        className={`w-full py-4 rounded-xl font-bold text-lg text-white bg-primary shadow-lg active:scale-95 flex justify-center items-center gap-2 disabled:opacity-50 ${className}`}>
+        className={`w-full py-4 rounded-xl font-bold text-lg text-white bg-primary shadow-lg active:scale-95 flex justify-center items-center gap-2 disabled:opacity-50 transition-all ${className}`}>
         {children}
       </button>
     );
 
     const SmallButton = ({ children, onClick, className = "", disabled=false, title }) => (
       <button title={title} onClick={onClick} disabled={disabled}
-        className={`px-3 py-2 rounded-xl font-bold text-sm bg-primary text-white active:scale-95 disabled:opacity-50 ${className}`}>
+        className={`px-3 py-2 rounded-xl font-bold text-sm bg-primary text-white active:scale-95 disabled:opacity-50 transition-all ${className}`}>
         {children}
       </button>
     );
 
     const OutlineButton = ({ children, onClick, className = "", disabled=false, title }) => (
       <button title={title} onClick={onClick} disabled={disabled}
-        className={`px-3 py-2 rounded-xl font-bold text-sm border border-primary text-primary bg-white active:scale-95 disabled:opacity-50 ${className}`}>
+        className={`px-3 py-2 rounded-xl font-bold text-sm border border-primary text-primary bg-white active:scale-95 disabled:opacity-50 transition-all ${className}`}>
         {children}
       </button>
     );
 
     const InputGroup = ({ label, value, onChange, type="text", placeholder, rightHint }) => (
       <div>
-        <label className="block text-secondary mb-1 font-bold flex justify-between">
+        <label className="block text-secondary mb-1 font-bold flex justify-between text-sm">
           <span>{label}</span>
           {rightHint ? <span className="text-xs text-secondary/70">{rightHint}</span> : null}
         </label>
         <input type={type} value={value} onChange={onChange} placeholder={placeholder}
-          className="w-full bg-inputBg rounded-xl p-3 text-primary font-bold border-none" />
+          className="w-full bg-inputBg rounded-xl p-3 text-primary font-bold border-none text-base focus:ring-2 focus:ring-primary/20" />
       </div>
     );
 
     const SectionTitle = ({ icon, title }) => (
-      <h3 className="text-xl font-bold text-primary mb-4 flex items-center gap-2">
-        <span className="material-icons">{icon}</span>{title}
+      <h3 className="text-lg font-bold text-primary mb-3 flex items-center gap-2">
+        <span className="material-icons text-xl">{icon}</span>{title}
       </h3>
     );
 
@@ -190,22 +206,23 @@
     );
 
     // ----------------------------
-    // 3) AI：只做「餐點熱量/營養素估算」
+    // 3) AI：餐點熱量/營養素估算 (核心修復區)
     // ----------------------------
-    const GEMINI_API_BASE = "https://generativelanguage.googleapis.com";
+    const GEMINI_API_BASE = "[https://generativelanguage.googleapis.com](https://generativelanguage.googleapis.com)";
     const GEMINI_API_VERSION = "v1beta";
     const GEMINI_FALLBACK_MODEL = "gemini-2.0-flash";
 
     const fallbackAnalysis = (text) => {
       let c=0, p=0, cb=0, f=0;
       const t = (text || "").toLowerCase();
+      // 簡易規則估算
       if (t.includes('雞') || t.includes('豬') || t.includes('牛') || t.includes('魚')) { c+=220; p+=25; f+=12; }
       if (t.includes('蛋')) { c+=75; p+=7; f+=5; }
       if (t.includes('飯') || t.includes('麵') || t.includes('粥') || t.includes('吐司') || t.includes('麵包')) { c+=280; p+=6; cb+=55; }
       if (t.includes('沙拉') || t.includes('菜') || t.includes('蔬')) { c+=80; cb+=12; }
       if (t.includes('奶') || t.includes('拿鐵') || t.includes('優格')) { c+=140; p+=8; cb+=12; f+=6; }
-      if (t.includes('香蕉')) { c+=90; cb+=23; }
-      if (c===0 && t.length>0) c=200;
+      if (t.includes('香蕉') || t.includes('果')) { c+=90; cb+=23; }
+      if (c===0 && t.length>0) c=200; // 基礎值
       return { name: text, calories: c, protein: p, carbs: cb, fat: f };
     };
 
@@ -214,91 +231,70 @@
         const parts = data?.candidates?.[0]?.content?.parts || [];
         const t = parts.map(p => {
           if (p?.text) return p.text;
-          const b64 = p?.inlineData?.data || p?.inline_data?.data;
-          if (b64) {
-            try { return atob(b64); } catch { return ""; }
-          }
           return "";
         }).join("").trim();
-
         if (t) return t;
-
         const raw = data?.candidates?.[0]?.content;
         if (typeof raw === "string") return raw.trim();
         return "";
-      } catch {
-        return "";
-      }
+      } catch { return ""; }
     };
 
+    // 強化的 JSON 解析器 (Fix: 解決 "AI 回傳不是可解析 JSON" 的問題)
     const safeParseJsonFromText = (text) => {
       if (!text) return null;
-      let t = String(text).trim().replace(/^\uFEFF/, "");
-      // 移除 markdown code fence
-      t = t.replace(/```(?:json)?/gi, "").replace(/```/g, "").trim();
-
+      // 1. 去除 BOM 和 Markdown code fence (```json ... ```)
+      let t = String(text).trim().replace(/^\uFEFF/, "").replace(/```(?:json)?/gi, "").replace(/```/g, "").trim();
+      
       const tryParse = (s) => { try { return JSON.parse(s); } catch { return null; } };
 
+      // 2. 使用括號平衡法抓取真正的 JSON 物件 (忽略廢話)
       const extractBalanced = (s, openCh, closeCh) => {
         const start = s.indexOf(openCh);
         if (start < 0) return null;
-        let depth = 0, inStr = false, esc = false;
+        let depth = 0, inStr = false;
         for (let i = start; i < s.length; i++) {
           const ch = s[i];
-          if (inStr) {
-            if (esc) { esc = false; continue; }
-            if (ch === "\\") { esc = true; continue; }
-            if (ch === '"') inStr = false;
-            continue;
-          } else {
-            if (ch === '"') { inStr = true; continue; }
-            if (ch === openCh) depth++;
-            if (ch === closeCh) depth--;
-            if (depth === 0) return s.slice(start, i + 1);
-          }
+          // 簡單處理字串內的引號
+          if (inStr) { if (ch === '"' && s[i-1] !== '\\') inStr = false; continue; }
+          if (ch === '"') { inStr = true; continue; }
+          if (ch === openCh) depth++;
+          if (ch === closeCh) depth--;
+          if (depth === 0) return s.slice(start, i + 1);
         }
         return null;
       };
 
       let candidate = extractBalanced(t, "{", "}");
-      if (!candidate) candidate = extractBalanced(t, "[", "]");
+      if (!candidate) candidate = extractBalanced(t, "[", "]"); // 萬一回傳陣列
       if (candidate) t = candidate;
 
       let obj = tryParse(t);
       if (obj) return obj;
 
-      // 常見：結尾多一個逗號
+      // 3. 嘗試修復常見 JSON 錯誤
+      // 結尾逗號
       let s = t.replace(/,\s*([}\]])/g, "$1");
-      obj = tryParse(s);
-      if (obj) return obj;
-
-      // 常見：回傳 JS object literal（key 沒有雙引號）
+      // Key 沒加引號
       s = s.replace(/([{,]\s*)([A-Za-z_][A-Za-z0-9_]*)\s*:/g, '$1"$2":');
-      obj = tryParse(s);
-      if (obj) return obj;
-
-      // 最後手段：單引號 -> 雙引號（可能不完美，但可救回很多情況）
+      // 單引號轉雙引號
       s = s.replace(/'/g, '"');
-      obj = tryParse(s);
-      return obj;
+      
+      return tryParse(s);
     };
 
     const normalizeMealFromParsed = (parsed, fallbackName) => {
       const obj = (parsed && typeof parsed === "object") ? parsed : {};
       const pick = (...keys) => {
-        for (const k of keys) {
-          if (Object.prototype.hasOwnProperty.call(obj, k) && obj[k] != null) return obj[k];
-        }
+        for (const k of keys) if (Object.prototype.hasOwnProperty.call(obj, k) && obj[k] != null) return obj[k];
         return undefined;
       };
 
-      const name = safeText(pick("name","meal","food","item","餐點","餐點名稱","食物","名稱")) || fallbackName;
-
-      const calories = clampNum(numFromAny(pick("calories","kcal","calorie","熱量","卡路里","熱量kcal","熱量(kcal)")), 0);
+      const name = safeText(pick("name","meal","food","item","餐點","餐點名稱")) || fallbackName;
+      const calories = clampNum(numFromAny(pick("calories","kcal","calorie","熱量")), 0);
       const protein  = clampNum(numFromAny(pick("protein","p","prot","蛋白質")), 0);
-      const carbs    = clampNum(numFromAny(pick("carbs","carb","c","碳水","碳水化合物","醣類")), 0);
+      const carbs    = clampNum(numFromAny(pick("carbs","carb","c","碳水","碳水化合物")), 0);
       const fat      = clampNum(numFromAny(pick("fat","f","脂肪")), 0);
-
       return { name, calories, protein, carbs, fat };
     };
 
@@ -306,8 +302,7 @@
       try {
         const raw = localStorage.getItem("healthlog_meal_cache_v1");
         if (!raw) return null;
-        const obj = JSON.parse(raw);
-        return obj[key] || null;
+        return JSON.parse(raw)[key] || null;
       } catch { return null; }
     };
 
@@ -316,9 +311,8 @@
         const raw = localStorage.getItem("healthlog_meal_cache_v1");
         const obj = raw ? JSON.parse(raw) : {};
         obj[key] = value;
-        // 只保留最近 80 筆，避免 localStorage 變太大
         const keys = Object.keys(obj);
-        if (keys.length > 80) {
+        if (keys.length > 80) { // Limit cache size
           const keep = keys.slice(keys.length - 80);
           const next = {};
           keep.forEach(k => next[k] = obj[k]);
@@ -333,129 +327,88 @@
       const cacheKey = "healthlog_gemini_model_v1";
       try {
         const cached = JSON.parse(localStorage.getItem(cacheKey) || "null");
-        if (cached && cached.model && cached.ts && (Date.now() - cached.ts < 24*60*60*1000)) {
-          return cached.model;
-        }
+        if (cached && cached.model && (Date.now() - cached.ts < 24*60*60*1000)) return cached.model;
       } catch {}
-
-      // 嘗試列模型清單（避免 404）
       try {
-        const url = `${GEMINI_API_BASE}/${GEMINI_API_VERSION}/models?key=${encodeURIComponent(apiKey)}`;
-        const res = await fetch(url);
-        if (!res.ok) throw new Error("listModels " + res.status);
+        const res = await fetch(`${GEMINI_API_BASE}/${GEMINI_API_VERSION}/models?key=${encodeURIComponent(apiKey)}`);
+        if (!res.ok) throw new Error("listModels error");
         const data = await res.json();
         const models = data?.models || [];
-        // 盡量挑 Flash 系列（速度快、便宜）
-        const candidate =
-          models.find(m => (m.name || "").includes("gemini") && (m.name || "").includes("flash") && (m.supportedGenerationMethods || []).includes("generateContent"))
-          || models.find(m => (m.name || "").includes("gemini") && (m.supportedGenerationMethods || []).includes("generateContent"));
-
+        const candidate = models.find(m => (m.name||"").includes("flash") && (m.supportedGenerationMethods||[]).includes("generateContent"));
         const picked = candidate?.name ? candidate.name.replace(/^models\//, "") : GEMINI_FALLBACK_MODEL;
         localStorage.setItem(cacheKey, JSON.stringify({ model: picked, ts: Date.now() }));
         return picked;
-      } catch {
-        return GEMINI_FALLBACK_MODEL;
-      }
+      } catch { return GEMINI_FALLBACK_MODEL; }
     };
 
     const analyzeMealWithGemini = async (input, apiKey) => {
       const text = safeText(input);
       if (!text) return null;
-
       const cacheKey = normalizeMealKey(text);
       const cached = getCachedMeal(cacheKey);
       if (cached) return cached;
 
       const model = await pickGeminiModel(apiKey);
       const endpoint = `${GEMINI_API_BASE}/${GEMINI_API_VERSION}/models/${model}:generateContent?key=${encodeURIComponent(apiKey)}`;
+      
+      // Prompt 優化：強調 "JSON Only"
+      const prompt = `你是一位台灣營養師，請估算「${text}」的熱量與營養素。回傳JSON格式:{"name":string, "calories":number, "protein":number, "carbs":number, "fat":number}。不要Markdown，不要解釋。`;
 
-      const prompt =
-`你是一位營養師，請根據使用者的餐點描述，估算整份餐點的熱量與三大營養素。
-要求：
-1) 只回傳「純 JSON」，不要加任何多餘文字或 markdown。
-2) JSON 格式必須是：{"name": string, "calories": number, "protein": number, "carbs": number, "fat": number}
-3) 數字為「整份餐點」估算值（允許四捨五入）。
-餐點描述：${text}`;
-
-      // 429 時做 2 次小延遲重試
       for (let attempt=0; attempt<3; attempt++) {
         try {
-          const schema = {
-        type: "OBJECT",
-        properties: {
-          name: { type: "STRING" },
-          calories: { type: "NUMBER" },
-          protein: { type: "NUMBER" },
-          carbs: { type: "NUMBER" },
-          fat: { type: "NUMBER" }
-        },
-        required: ["name","calories","protein","carbs","fat"]
-      };
-
-          // 先嘗試 Structured JSON（如果 API/模型不支援，會在 400 時 fallback）
+          // 策略 1: 使用 responseSchema (強制結構化輸出，最穩)
           const payloadWithSchema = {
             contents: [{ parts: [{ text: prompt }] }],
             generationConfig: {
-              temperature: 0.2,
-              maxOutputTokens: 256,
-              // 某些版本是 responseMimeType/responseSchema；如果不支援會走 fallback
+              temperature: 0.2, 
+              maxOutputTokens: 256, 
               responseMimeType: "application/json",
-              responseSchema: schema
+              responseSchema: { 
+                type: "OBJECT", 
+                properties: { 
+                  name: {type:"STRING"}, 
+                  calories: {type:"NUMBER"}, 
+                  protein: {type:"NUMBER"}, 
+                  carbs: {type:"NUMBER"}, 
+                  fat: {type:"NUMBER"} 
+                }, 
+                required: ["name","calories","protein","carbs","fat"] 
+              }
             }
           };
+          
+          // 策略 2: 一般模式 (Fallback，萬一模型不支援 Schema)
+          const payloadNoSchema = { contents: [{ parts: [{ text: prompt }] }], generationConfig: { temperature: 0.2, maxOutputTokens: 256 } };
 
-          const payloadNoSchema = {
-            contents: [{ parts: [{ text: prompt }] }],
-            generationConfig: { temperature: 0.2, maxOutputTokens: 256 }
-          };
-
-          let payload = payloadWithSchema;
-
-          let res = await fetch(endpoint, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(payload)
-          });
-
-          // 若 structured 欄位不被接受（常見 400），就改用一般模式再試一次
+          let res = await fetch(endpoint, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payloadWithSchema) });
+          
+          // 若不支援 Schema (400 Bad Request)，自動降級使用一般模式
           if (!res.ok && res.status === 400) {
-            payload = payloadNoSchema;
-            res = await fetch(endpoint, {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify(payload)
-            });
+             res = await fetch(endpoint, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payloadNoSchema) });
           }
 
-          // 後面沿用 res
-          // NOTE: 這裡不要 return，讓下方統一處理 429 / error / parse
-
-                    if (res.status === 429 && attempt < 2) { await sleep(450 * (attempt + 1)); continue; }
-          if (!res.ok) {
-            const err = await res.json().catch(() => ({}));
-            const msg = err?.error?.message || ("Gemini API Error " + res.status);
-            throw new Error(msg);
-          }
+          if (res.status === 429 && attempt < 2) { await sleep(1000 * (attempt + 1)); continue; }
+          if (!res.ok) throw new Error("Gemini API Error " + res.status);
 
           const data = await res.json();
           const t = geminiExtractText(data);
+          
+          // 使用強化的解析器
           const parsed = safeParseJsonFromText(t);
-          if (!parsed) throw new Error("AI 回傳不是可解析的 JSON");
-
+          if (!parsed) throw new Error("Parse Error");
+          
           const out = normalizeMealFromParsed(parsed, text);
-
           setCachedMeal(cacheKey, out);
           return out;
         } catch (e) {
           if (attempt === 2) throw e;
         }
       }
-
       return null;
     };
 
     // ----------------------------
-    // 4) 主要頁面
+    // 4) 主要頁面 Component
     // ----------------------------
     const computeMealTotals = (meals=[]) => {
       const t = { cal: 0, pro: 0, carb: 0, fat: 0 };
@@ -512,7 +465,7 @@
       ].join("\n");
     };
 
-    // Dashboard
+    // --- Page: Dashboard ---
     const DashboardPage = ({ date, data, targets, totals, onQuickAdd, onCopyCoachReport, coachPreview }) => {
       const isWorkoutDay = clampNum(data.workoutTime, 0) >= 30;
       const currentTargets = isWorkoutDay ? targets.workout : targets.rest;
@@ -520,8 +473,9 @@
 
       return (
         <div className="space-y-6 pb-24">
-          <Card className="bg-primary text-white border-none">
-            <div className="flex justify-between items-start mb-4">
+          <Card className="bg-primary text-white border-none relative overflow-hidden">
+             <div className="absolute top-0 right-0 p-4 opacity-10 text-6xl">🌿</div>
+            <div className="flex justify-between items-start mb-4 relative z-10">
               <div>
                 <div className="text-white/80 text-lg">今日總覽</div>
                 <div className="big-num">{Math.round(remainingCal)}</div>
@@ -534,16 +488,16 @@
                 <div className="text-white/80 text-sm">攝取 {Math.round(totals.cal)} / {currentTargets.calories}</div>
               </div>
             </div>
-            <div className="grid grid-cols-3 gap-2 mt-4">
-              <div className="bg-white/10 p-2 rounded-lg text-center">
+            <div className="grid grid-cols-3 gap-2 mt-4 relative z-10">
+              <div className="bg-white/10 p-2 rounded-lg text-center backdrop-blur-sm">
                 <div className="text-xs opacity-70">蛋白質</div>
                 <div className="font-bold">{Math.round(totals.pro)}/{currentTargets.protein}</div>
               </div>
-              <div className="bg-white/10 p-2 rounded-lg text-center">
+              <div className="bg-white/10 p-2 rounded-lg text-center backdrop-blur-sm">
                 <div className="text-xs opacity-70">碳水</div>
                 <div className="font-bold">{Math.round(totals.carb)}/{currentTargets.carbs}</div>
               </div>
-              <div className="bg-white/10 p-2 rounded-lg text-center">
+              <div className="bg-white/10 p-2 rounded-lg text-center backdrop-blur-sm">
                 <div className="text-xs opacity-70">脂肪</div>
                 <div className="font-bold">{Math.round(totals.fat)}/{currentTargets.fat}</div>
               </div>
@@ -553,11 +507,11 @@
           <div className="grid grid-cols-2 gap-4">
             <Card className="relative overflow-hidden">
               <div className="absolute right-[-10px] bottom-[-10px] opacity-10"><span className="material-icons text-8xl">water_drop</span></div>
-              <div className="flex justify-between items-center">
+              <div className="flex justify-between items-center relative z-10">
                 <div>
-                  <div className="text-secondary font-bold">喝水</div>
-                  <div className="text-3xl font-extrabold text-primary">{clampNum(data.water, 0)}</div>
-                  <div className="text-xs text-secondary/70">ml / 目標 {targets.water}</div>
+                  <div className="text-secondary font-bold text-sm">喝水</div>
+                  <div className="text-2xl font-extrabold text-primary">{clampNum(data.water, 0)}</div>
+                  <div className="text-xs text-secondary/70">/ {targets.water}</div>
                 </div>
                 <SmallButton onClick={() => onQuickAdd("water", 250)} title="快速 +250ml">+250</SmallButton>
               </div>
@@ -565,11 +519,11 @@
 
             <Card className="relative overflow-hidden">
               <div className="absolute right-[-10px] bottom-[-10px] opacity-10"><span className="material-icons text-8xl">directions_walk</span></div>
-              <div className="flex justify-between items-center">
+              <div className="flex justify-between items-center relative z-10">
                 <div>
-                  <div className="text-secondary font-bold">步數</div>
-                  <div className="text-3xl font-extrabold text-primary">{clampNum(data.steps, 0)}</div>
-                  <div className="text-xs text-secondary/70">步 / 目標 {targets.steps}</div>
+                  <div className="text-secondary font-bold text-sm">步數</div>
+                  <div className="text-2xl font-extrabold text-primary">{clampNum(data.steps, 0)}</div>
+                  <div className="text-xs text-secondary/70">/ {targets.steps}</div>
                 </div>
                 <SmallButton onClick={() => onQuickAdd("steps", 500)} title="快速 +500步">+500</SmallButton>
               </div>
@@ -578,7 +532,7 @@
 
           <Card>
             <SectionTitle icon="insights" title="教練回報" />
-            <div className="text-sm text-secondary whitespace-pre-wrap bg-inputBg rounded-xl p-4 border border-borderBeige">
+            <div className="text-sm text-secondary whitespace-pre-wrap bg-inputBg rounded-xl p-4 border border-borderBeige font-mono leading-relaxed">
               {coachPreview || "（目前還沒有資料）"}
             </div>
             <div className="mt-4">
@@ -592,19 +546,16 @@
       );
     };
 
-    // Log Page
+    // --- Page: Log ---
     const LogPage = ({ date, data, targets, apiKey, presets, onUpdate, onAddMeal, onDeleteMeal, onSavePreset }) => {
       const [selectedCategory, setSelectedCategory] = useState("breakfast");
       const [mealInput, setMealInput] = useState("");
       const [analyzing, setAnalyzing] = useState(false);
-
       const [manualMode, setManualMode] = useState(false);
       const [manualMeal, setManualMeal] = useState({ name: "", calories: "", protein: "", carbs: "", fat: "" });
-
       const [selectedPresetId, setSelectedPresetId] = useState("");
 
       useEffect(() => {
-        // 時段預設分類
         const hour = new Date().getHours();
         if (hour >= 5 && hour < 11) setSelectedCategory("breakfast");
         else if (hour >= 11 && hour < 15) setSelectedCategory("lunch");
@@ -618,7 +569,6 @@
           const c = m.category || "snack";
           if (g[c]) g[c].push(m);
         });
-        // 新 → 舊
         Object.keys(g).forEach(k => g[k].sort((a,b) => (b.createdAtMs||0) - (a.createdAtMs||0)));
         return g;
       }, [data.meals]);
@@ -626,14 +576,10 @@
       const analyzeAndAdd = async () => {
         if (manualMode) {
           const meal = {
-            id: uuid(),
-            category: selectedCategory,
-            name: safeText(manualMeal.name) || "自訂",
-            text: safeText(manualMeal.name) || "自訂",
-            calories: clampNum(manualMeal.calories, 0),
-            protein: clampNum(manualMeal.protein, 0),
-            carbs: clampNum(manualMeal.carbs, 0),
-            fat: clampNum(manualMeal.fat, 0),
+            id: uuid(), category: selectedCategory,
+            name: safeText(manualMeal.name) || "自訂", text: safeText(manualMeal.name) || "自訂",
+            calories: clampNum(manualMeal.calories, 0), protein: clampNum(manualMeal.protein, 0),
+            carbs: clampNum(manualMeal.carbs, 0), fat: clampNum(manualMeal.fat, 0),
             createdAtMs: Date.now()
           };
           onAddMeal(meal);
@@ -642,23 +588,16 @@
           return;
         }
 
-        // 若有選常用餐點：直接加入（不打 API）
         if (selectedPresetId) {
           const p = (presets || []).find(x => x.id === selectedPresetId);
           if (p) {
-            const meal = {
-              id: uuid(),
-              category: selectedCategory,
-              name: p.label || p.name || "常用餐點",
-              text: p.text || p.label || p.name || "常用餐點",
-              calories: clampNum(p.calories, 0),
-              protein: clampNum(p.protein, 0),
-              carbs: clampNum(p.carbs, 0),
-              fat: clampNum(p.fat, 0),
-              createdAtMs: Date.now(),
-              source: "preset"
-            };
-            onAddMeal(meal);
+            onAddMeal({
+              id: uuid(), category: selectedCategory,
+              name: p.label || p.name || "常用餐點", text: p.text || p.label || p.name || "常用餐點",
+              calories: clampNum(p.calories, 0), protein: clampNum(p.protein, 0),
+              carbs: clampNum(p.carbs, 0), fat: clampNum(p.fat, 0),
+              createdAtMs: Date.now(), source: "preset"
+            });
             setSelectedPresetId("");
             return;
           }
@@ -674,44 +613,31 @@
             analyzed = await analyzeMealWithGemini(input, apiKey);
           }
           if (!analyzed) analyzed = fallbackAnalysis(input);
-          // 不管 AI 成功/失敗，都先快取，避免同一餐點重複打 API
+          
+          // 若 AI 分析成功，一樣要快取
           setCachedMeal(normalizeMealKey(input), analyzed);
 
-          const meal = {
-            id: uuid(),
-            category: selectedCategory,
-            name: analyzed.name || input,
-            text: input,
-            calories: clampNum(analyzed.calories, 0),
-            protein: clampNum(analyzed.protein, 0),
-            carbs: clampNum(analyzed.carbs, 0),
-            fat: clampNum(analyzed.fat, 0),
-            createdAtMs: Date.now(),
-            source: safeText(apiKey) ? "gemini" : "fallback"
-          };
-          onAddMeal(meal);
+          onAddMeal({
+            id: uuid(), category: selectedCategory,
+            name: analyzed.name || input, text: input,
+            calories: clampNum(analyzed.calories, 0), protein: clampNum(analyzed.protein, 0),
+            carbs: clampNum(analyzed.carbs, 0), fat: clampNum(analyzed.fat, 0),
+            createdAtMs: Date.now(), source: safeText(apiKey) ? "gemini" : "fallback"
+          });
           setMealInput("");
         } catch (e) {
           if (!_aiWarnedOnce) {
             _aiWarnedOnce = true;
             alert("AI 分析失敗：\n" + (e?.message || String(e)) + "\n\n已改用估算模式加入。");
-          } else {
-            console.warn("AI 分析失敗（已自動改用估算模式）：", e);
           }
           const analyzed = fallbackAnalysis(input);
-          // 失敗也快取，避免同一餐點重複出錯＋省額度
           setCachedMeal(normalizeMealKey(input), analyzed);
           onAddMeal({
-            id: uuid(),
-            category: selectedCategory,
-            name: analyzed.name || input,
-            text: input,
-            calories: clampNum(analyzed.calories, 0),
-            protein: clampNum(analyzed.protein, 0),
-            carbs: clampNum(analyzed.carbs, 0),
-            fat: clampNum(analyzed.fat, 0),
-            createdAtMs: Date.now(),
-            source: "fallback"
+            id: uuid(), category: selectedCategory,
+            name: analyzed.name || input, text: input,
+            calories: clampNum(analyzed.calories, 0), protein: clampNum(analyzed.protein, 0),
+            carbs: clampNum(analyzed.carbs, 0), fat: clampNum(analyzed.fat, 0),
+            createdAtMs: Date.now(), source: "fallback"
           });
           setMealInput("");
         } finally {
@@ -720,8 +646,7 @@
       };
 
       const presetOptions = useMemo(() => {
-        const list = (presets || []).filter(p => (p.category || "snack") === selectedCategory);
-        return list;
+        return (presets || []).filter(p => (p.category || "snack") === selectedCategory);
       }, [presets, selectedCategory]);
 
       return (
@@ -729,11 +654,11 @@
           <Card>
             <SectionTitle icon="accessibility" title="身體與狀態" />
             <div className="grid grid-cols-2 gap-4">
-              <InputGroup label="體重 (kg)" type="number" value={data.weight || ""} onChange={e => onUpdate({ weight: e.target.value })} placeholder="70.5" />
-              <InputGroup label="睡眠 (hr)" type="number" value={data.sleep || ""} onChange={e => onUpdate({ sleep: e.target.value })} placeholder="6.5" />
+              <InputGroup label="體重 (kg)" type="number" value={data.weight || ""} onChange={e => onUpdate({ weight: e.target.value })} placeholder="60.0" />
+              <InputGroup label="睡眠 (hr)" type="number" value={data.sleep || ""} onChange={e => onUpdate({ sleep: e.target.value })} placeholder="7" />
             </div>
             <div className="mt-4">
-              <label className="block text-secondary mb-2 font-bold flex justify-between">
+              <label className="block text-secondary mb-2 font-bold flex justify-between text-sm">
                 <span>疲勞度 (1-10)</span><span className="text-primary font-bold">{data.fatigue || 5}</span>
               </label>
               <input type="range" min="1" max="10" value={data.fatigue || 5}
@@ -745,25 +670,24 @@
           <Card>
             <SectionTitle icon="fitness_center" title="運動與活動" />
             <div className="grid grid-cols-2 gap-4">
-              <InputGroup label="喝水 (ml)" type="number" value={data.water || 0} onChange={e => onUpdate({ water: parseInt(e.target.value || "0", 10) })} placeholder="2000" />
-              <InputGroup label="步數" type="number" value={data.steps || 0} onChange={e => onUpdate({ steps: parseInt(e.target.value || "0", 10) })} placeholder="8000" />
+              <InputGroup label="喝水 (ml)" type="number" value={data.water || 0} onChange={e => onUpdate({ water: parseInt(e.target.value || "0", 10) })} />
+              <InputGroup label="步數" type="number" value={data.steps || 0} onChange={e => onUpdate({ steps: parseInt(e.target.value || "0", 10) })} />
             </div>
 
             <div className="grid grid-cols-2 gap-4 mt-4">
-              <InputGroup label="有氧類型" value={data.cardioType || ""} onChange={e => onUpdate({ cardioType: e.target.value })} placeholder="跑步機慢走" />
-              <InputGroup label="有氧分鐘" type="number" value={data.cardioTime || 0} onChange={e => onUpdate({ cardioTime: parseInt(e.target.value || "0", 10) })} placeholder="20" />
+              <InputGroup label="有氧類型" value={data.cardioType || ""} onChange={e => onUpdate({ cardioType: e.target.value })} placeholder="無" />
+              <InputGroup label="有氧分鐘" type="number" value={data.cardioTime || 0} onChange={e => onUpdate({ cardioTime: parseInt(e.target.value || "0", 10) })} />
             </div>
 
             <div className="grid grid-cols-2 gap-4 mt-4">
-              <InputGroup label="重訓/運動" value={data.workoutType || ""} onChange={e => onUpdate({ workoutType: e.target.value })} placeholder="重訓" />
-              <InputGroup label="重訓分鐘" type="number" value={data.workoutTime || 0} onChange={e => onUpdate({ workoutTime: parseInt(e.target.value || "0", 10) })} placeholder="60" />
+              <InputGroup label="重訓/運動" value={data.workoutType || ""} onChange={e => onUpdate({ workoutType: e.target.value })} placeholder="無" />
+              <InputGroup label="重訓分鐘" type="number" value={data.workoutTime || 0} onChange={e => onUpdate({ workoutTime: parseInt(e.target.value || "0", 10) })} />
             </div>
           </Card>
 
           <Card>
             <SectionTitle icon="restaurant" title="飲食紀錄" />
 
-            {/* 分類切換 */}
             <div className="flex bg-inputBg rounded-xl p-1 mb-4 overflow-x-auto">
               {Object.entries(MEAL_CATEGORIES).map(([key, label]) => (
                 <button key={key} onClick={() => { setSelectedCategory(key); setSelectedPresetId(""); }}
@@ -773,11 +697,10 @@
               ))}
             </div>
 
-            {/* 常用餐點 */}
             <div className="grid grid-cols-3 gap-2 mb-3">
-              <select className="col-span-2 bg-inputBg rounded-xl p-3 font-bold text-primary"
+              <select className="col-span-2 bg-inputBg rounded-xl p-3 font-bold text-primary text-base"
                 value={selectedPresetId} onChange={e => setSelectedPresetId(e.target.value)}>
-                <option value="">（常用餐點：選擇可直接加入）</option>
+                <option value="">（常用餐點）</option>
                 {presetOptions.map(p => (
                   <option key={p.id} value={p.id}>{p.label || p.name}</option>
                 ))}
@@ -790,7 +713,7 @@
             {!manualMode ? (
               <div className="flex gap-2">
                 <input value={mealInput} onChange={e => setMealInput(e.target.value)}
-                  placeholder="例如：蛋、地瓜、拿鐵"
+                  placeholder="例如：雞胸肉 100g"
                   className="flex-1 bg-inputBg p-3 rounded-xl font-bold text-primary"
                   onKeyDown={e => e.key === "Enter" && analyzeAndAdd()} />
                 <SmallButton onClick={analyzeAndAdd} disabled={analyzing} title={apiKey ? "用 AI 估算加入" : "用簡單估算加入"}>
@@ -798,84 +721,69 @@
                 </SmallButton>
               </div>
             ) : (
-              <div className="space-y-3">
-                <InputGroup label="餐點名稱" value={manualMeal.name} onChange={e => setManualMeal({...manualMeal, name: e.target.value})} placeholder="例如：早餐生菜" />
-                <div className="grid grid-cols-2 gap-3">
-                  <InputGroup label="熱量 kcal" type="number" value={manualMeal.calories} onChange={e => setManualMeal({...manualMeal, calories: e.target.value})} placeholder="400" />
-                  <InputGroup label="蛋白質 g" type="number" value={manualMeal.protein} onChange={e => setManualMeal({...manualMeal, protein: e.target.value})} placeholder="30" />
-                  <InputGroup label="碳水 g" type="number" value={manualMeal.carbs} onChange={e => setManualMeal({...manualMeal, carbs: e.target.value})} placeholder="50" />
-                  <InputGroup label="脂肪 g" type="number" value={manualMeal.fat} onChange={e => setManualMeal({...manualMeal, fat: e.target.value})} placeholder="15" />
+              <div className="space-y-3 bg-inputBg/50 p-3 rounded-xl">
+                <InputGroup label="名稱" value={manualMeal.name} onChange={e => setManualMeal({...manualMeal, name: e.target.value})} />
+                <div className="grid grid-cols-4 gap-2">
+                  <InputGroup label="熱量" type="number" value={manualMeal.calories} onChange={e => setManualMeal({...manualMeal, calories: e.target.value})} placeholder="0" />
+                  <InputGroup label="P" type="number" value={manualMeal.protein} onChange={e => setManualMeal({...manualMeal, protein: e.target.value})} placeholder="0" />
+                  <InputGroup label="C" type="number" value={manualMeal.carbs} onChange={e => setManualMeal({...manualMeal, carbs: e.target.value})} placeholder="0" />
+                  <InputGroup label="F" type="number" value={manualMeal.fat} onChange={e => setManualMeal({...manualMeal, fat: e.target.value})} placeholder="0" />
                 </div>
                 <Button onClick={analyzeAndAdd}><span className="material-icons">add</span>加入（手動）</Button>
               </div>
             )}
 
-            {/* 清單 */}
             <div className="mt-6 space-y-4">
               {Object.keys(MEAL_CATEGORIES).map(cat => (
                 <div key={cat}>
                   <div className="flex items-center justify-between mb-2">
-                    <div className="font-bold text-secondary">{MEAL_CATEGORIES[cat]}</div>
+                    <div className="font-bold text-secondary text-sm">{MEAL_CATEGORIES[cat]}</div>
                     <Tag className="bg-inputBg text-secondary">{(mealsByCat[cat] || []).length} 筆</Tag>
                   </div>
-
                   <div className="space-y-2">
                     {(mealsByCat[cat] || []).map(m => (
-                      <div key={m.id} className="flex justify-between items-center bg-white p-4 rounded-xl border border-borderBeige">
+                      <div key={m.id} className="flex justify-between items-center bg-white p-3 rounded-xl border border-borderBeige shadow-sm">
                         <div className="min-w-0 pr-2">
                           <div className="font-bold text-primary truncate">{m.name || m.text}</div>
-                          <div className="text-xs text-secondary/80">
+                          <div className="text-xs text-secondary/80 mt-1">
                             {Math.round(clampNum(m.calories,0))} kcal (P{Math.round(clampNum(m.protein,0))} C{Math.round(clampNum(m.carbs,0))} F{Math.round(clampNum(m.fat,0))})
                           </div>
-                          {m.text && m.text !== m.name ? <div className="text-xs text-secondary/60 truncate">內容：{m.text}</div> : null}
                         </div>
-
-                        <div className="flex items-center gap-2">
-                          <button title="存成常用餐點"
-                            onClick={() => onSavePreset(m)}
-                            className="material-icons text-primary/70 hover:text-primary">
-                            star_outline
-                          </button>
-                          <button title="刪除"
-                            onClick={() => onDeleteMeal(m.id)}
-                            className="material-icons text-red-400 hover:text-red-600">
-                            delete
-                          </button>
+                        <div className="flex items-center gap-1">
+                          <button title="存成常用餐點" onClick={() => onSavePreset(m)} className="p-2 material-icons text-primary/70 hover:text-primary">star_outline</button>
+                          <button title="刪除" onClick={() => onDeleteMeal(m.id)} className="p-2 material-icons text-red-400 hover:text-red-600">delete</button>
                         </div>
                       </div>
                     ))}
-                    {(mealsByCat[cat] || []).length === 0 ? (
-                      <div className="text-center text-secondary/50 py-3">（尚無紀錄）</div>
-                    ) : null}
+                    {(mealsByCat[cat] || []).length === 0 ? <div className="text-center text-secondary/30 py-2 text-xs">（尚無紀錄）</div> : null}
                   </div>
                 </div>
               ))}
             </div>
           </Card>
-
-          <div className="text-xs text-secondary/70">
-            小提醒：AI 只用在「餐點估算」。如果你覺得被扣額度太快，可以不填 API Key，仍可用簡單估算＋手動輸入。
+          <div className="text-xs text-secondary/70 text-center">
+            若覺得 AI 估算不準，可切換「手動」自行輸入。
           </div>
         </div>
       );
     };
 
-    // Settings
+    // --- Page: Settings ---
     const SettingsPage = ({ syncId, localSyncId, setLocalSyncId, targets, setTargets, apiKey, setApiKey, presets, onDeletePreset, onSaveAll }) => {
       return (
         <div className="space-y-6 pb-24">
           <Card>
             <SectionTitle icon="link" title="跨裝置同步" />
             <div className="text-sm text-secondary mb-3">
-              這個「同步代號」就是你的跨裝置鑰匙：在公司桌機、手機、NB 都填一樣的代號，就會看到同一份資料。
-              <br/>⚠️ 請把它當成密碼，不要外流。
+              請在所有裝置輸入相同的同步代號。
+              <br/>⚠️ 請勿外流，這是您的資料鑰匙。
             </div>
             <InputGroup
               label="同步代號"
               value={localSyncId}
               onChange={e => setLocalSyncId(e.target.value)}
               placeholder="例如：nicole-2026"
-              rightHint={"目前使用：" + (syncId || "-")}
+              rightHint={"目前：" + (syncId || "-")}
             />
             <div className="mt-4">
               <Button onClick={onSaveAll}><span className="material-icons">save</span>儲存設定</Button>
@@ -883,63 +791,48 @@
           </Card>
 
           <Card>
-            <SectionTitle icon="flag" title="營養目標" />
-            <div className="text-sm text-secondary mb-4">運動日/休息日會依「重訓分鐘 ≥ 30」自動判斷。</div>
+            <SectionTitle icon="key" title="Gemini API Key" />
+            <div className="text-sm text-secondary mb-3">
+              只存於此裝置，不從 Firebase 同步。不填則使用簡易規則估算。
+            </div>
+            <InputGroup label="API Key" type="password" value={apiKey} onChange={e => setApiKey(e.target.value)} placeholder="AIzaSy..." />
+          </Card>
 
+          <Card>
+            <SectionTitle icon="flag" title="營養目標" />
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-3">
-                <div className="font-bold text-secondary">☕ 休息日</div>
-                <InputGroup label="熱量 (kcal)" type="number" value={targets.rest.calories} onChange={e => setTargets({...targets, rest:{...targets.rest, calories: parseInt(e.target.value||"0",10)}})} />
-                <InputGroup label="蛋白質 (g)" type="number" value={targets.rest.protein} onChange={e => setTargets({...targets, rest:{...targets.rest, protein: parseInt(e.target.value||"0",10)}})} />
-                <InputGroup label="碳水 (g)" type="number" value={targets.rest.carbs} onChange={e => setTargets({...targets, rest:{...targets.rest, carbs: parseInt(e.target.value||"0",10)}})} />
-                <InputGroup label="脂肪 (g)" type="number" value={targets.rest.fat} onChange={e => setTargets({...targets, rest:{...targets.rest, fat: parseInt(e.target.value||"0",10)}})} />
+                <div className="font-bold text-secondary text-sm">☕ 休息日</div>
+                <InputGroup label="熱量" type="number" value={targets.rest.calories} onChange={e => setTargets({...targets, rest:{...targets.rest, calories: parseInt(e.target.value||"0",10)}})} />
+                <InputGroup label="P" type="number" value={targets.rest.protein} onChange={e => setTargets({...targets, rest:{...targets.rest, protein: parseInt(e.target.value||"0",10)}})} />
+                <InputGroup label="C" type="number" value={targets.rest.carbs} onChange={e => setTargets({...targets, rest:{...targets.rest, carbs: parseInt(e.target.value||"0",10)}})} />
+                <InputGroup label="F" type="number" value={targets.rest.fat} onChange={e => setTargets({...targets, rest:{...targets.rest, fat: parseInt(e.target.value||"0",10)}})} />
               </div>
-
               <div className="space-y-3">
-                <div className="font-bold text-secondary">🔥 運動日</div>
-                <InputGroup label="熱量 (kcal)" type="number" value={targets.workout.calories} onChange={e => setTargets({...targets, workout:{...targets.workout, calories: parseInt(e.target.value||"0",10)}})} />
-                <InputGroup label="蛋白質 (g)" type="number" value={targets.workout.protein} onChange={e => setTargets({...targets, workout:{...targets.workout, protein: parseInt(e.target.value||"0",10)}})} />
-                <InputGroup label="碳水 (g)" type="number" value={targets.workout.carbs} onChange={e => setTargets({...targets, workout:{...targets.workout, carbs: parseInt(e.target.value||"0",10)}})} />
-                <InputGroup label="脂肪 (g)" type="number" value={targets.workout.fat} onChange={e => setTargets({...targets, workout:{...targets.workout, fat: parseInt(e.target.value||"0",10)}})} />
+                <div className="font-bold text-secondary text-sm">🔥 運動日</div>
+                <InputGroup label="熱量" type="number" value={targets.workout.calories} onChange={e => setTargets({...targets, workout:{...targets.workout, calories: parseInt(e.target.value||"0",10)}})} />
+                <InputGroup label="P" type="number" value={targets.workout.protein} onChange={e => setTargets({...targets, workout:{...targets.workout, protein: parseInt(e.target.value||"0",10)}})} />
+                <InputGroup label="C" type="number" value={targets.workout.carbs} onChange={e => setTargets({...targets, workout:{...targets.workout, carbs: parseInt(e.target.value||"0",10)}})} />
+                <InputGroup label="F" type="number" value={targets.workout.fat} onChange={e => setTargets({...targets, workout:{...targets.workout, fat: parseInt(e.target.value||"0",10)}})} />
               </div>
             </div>
-
-            <div className="grid grid-cols-2 gap-4 mt-4">
-              <InputGroup label="喝水目標 (ml)" type="number" value={targets.water} onChange={e => setTargets({...targets, water: parseInt(e.target.value||"0",10)})} />
-              <InputGroup label="步數目標" type="number" value={targets.steps} onChange={e => setTargets({...targets, steps: parseInt(e.target.value||"0",10)})} />
-            </div>
           </Card>
 
           <Card>
-            <SectionTitle icon="key" title="Gemini API Key（只存本機）" />
-            <div className="text-sm text-secondary mb-3">
-              只用於「餐點估算」。不填也能用（改成估算/手動）。
-              <br/>為了安全，Key 只存在你這台裝置的 localStorage，不會寫進 Firebase。
-            </div>
-            <InputGroup label="API Key" value={apiKey} onChange={e => setApiKey(e.target.value)} placeholder="AIzaSy..." />
-            <div className="text-xs text-secondary/70 mt-2">提示：如果遇到 404 / 429，通常是模型未開通或額度/頻率限制。</div>
-          </Card>
-
-          <Card>
-            <SectionTitle icon="star" title="常用餐點（可跨裝置）" />
-            <div className="text-sm text-secondary mb-3">
-              在「紀錄」頁每一筆餐點右側按 ⭐ 就能存成常用餐點。這裡可刪除管理。
-            </div>
-
+            <SectionTitle icon="star" title="常用餐點管理" />
             <div className="space-y-2">
               {(presets || []).length ? presets.map(p => (
-                <div key={p.id} className="flex justify-between items-center bg-white p-4 rounded-xl border border-borderBeige">
+                <div key={p.id} className="flex justify-between items-center bg-white p-3 rounded-xl border border-borderBeige">
                   <div className="min-w-0 pr-2">
                     <div className="font-bold text-primary truncate">{p.label || p.name}</div>
                     <div className="text-xs text-secondary/70">
-                      {MEAL_CATEGORIES[p.category || "snack"]} · {Math.round(clampNum(p.calories,0))} kcal (P{Math.round(clampNum(p.protein,0))} C{Math.round(clampNum(p.carbs,0))} F{Math.round(clampNum(p.fat,0))})
+                      {Math.round(clampNum(p.calories,0))} kcal
                     </div>
-                    {p.text ? <div className="text-xs text-secondary/60 truncate">內容：{p.text}</div> : null}
                   </div>
-                  <button className="material-icons text-red-400 hover:text-red-600" onClick={() => onDeletePreset(p.id)} title="刪除常用餐點">delete</button>
+                  <button className="p-2 material-icons text-red-400 hover:text-red-600" onClick={() => onDeletePreset(p.id)}>delete</button>
                 </div>
               )) : (
-                <div className="text-center text-secondary/50 py-4">（目前還沒有常用餐點）</div>
+                <div className="text-center text-secondary/50 py-4 text-xs">（目前還沒有常用餐點）</div>
               )}
             </div>
           </Card>
@@ -947,10 +840,9 @@
       );
     };
 
-    // History
+    // --- Page: History ---
     const HistoryPage = ({ history, onExportCsv }) => {
       const { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } = Recharts;
-
       return (
         <div className="space-y-6 pb-24">
           <Card>
@@ -963,21 +855,20 @@
                     <XAxis dataKey="date" tick={{ fontSize: 12 }} />
                     <YAxis tick={{ fontSize: 12 }} domain={['dataMin - 1', 'dataMax + 1']} />
                     <Tooltip />
-                    <Line type="monotone" dataKey="weight" strokeWidth={3} dot={false} />
+                    <Line type="monotone" dataKey="weight" stroke="#4A5D23" strokeWidth={3} dot={false} />
                   </LineChart>
                 </ResponsiveContainer>
               </div>
             ) : (
-              <div className="text-center text-secondary/50 py-10">（目前還沒有體重紀錄）</div>
+              <div className="text-center text-secondary/50 py-10">（還沒有體重紀錄）</div>
             )}
           </Card>
-
           <Card>
-            <SectionTitle icon="download" title="匯出" />
+            <SectionTitle icon="download" title="匯出資料" />
             <div className="text-sm text-secondary mb-4">
-              下載 CSV 欄位會「對齊教練回報格式」：每一列是「記錄日期」，但飲食/運動/喝水/步數/熱量取用「前一日」資料（前一日沒有資料就留空/0）。
+              下載 CSV 可用於 Excel 分析或備份。格式已對齊教練回報。
             </div>
-            <Button onClick={onExportCsv}><span className="material-icons">download</span>下載 CSV（教練回報欄位）</Button>
+            <Button onClick={onExportCsv}><span className="material-icons">download</span>下載 CSV</Button>
           </Card>
         </div>
       );
@@ -989,21 +880,11 @@
     const DEFAULT_TARGETS = {
       rest: { calories: 1600, protein: 100, carbs: 150, fat: 50 },
       workout: { calories: 2000, protein: 150, carbs: 200, fat: 60 },
-      water: 2000,
-      steps: 8000
+      water: 2000, steps: 8000
     };
-
     const DEFAULT_DAY = {
-      weight: "",
-      sleep: "",
-      fatigue: 5,
-      water: 0,
-      steps: 0,
-      workoutType: "",
-      workoutTime: 0,
-      cardioType: "",
-      cardioTime: 0,
-      meals: []
+      weight: "", sleep: "", fatigue: 5, water: 0, steps: 0,
+      workoutType: "", workoutTime: 0, cardioType: "", cardioTime: 0, meals: []
     };
 
     const App = () => {
@@ -1011,17 +892,13 @@
       const [syncId, setSyncId] = useState("");
       const [localSyncId, setLocalSyncId] = useState("");
       const [permissionError, setPermissionError] = useState(false);
-
       const [view, setView] = useState("dashboard");
       const [date, setDate] = useState(getTodayString());
-
       const [data, setData] = useState(DEFAULT_DAY);
       const [prevData, setPrevData] = useState(DEFAULT_DAY);
-
       const [targets, setTargets] = useState(DEFAULT_TARGETS);
       const [presets, setPresets] = useState([]);
       const [apiKey, setApiKey] = useState(localStorage.getItem("healthlog_gemini_key") || "");
-
       const [loading, setLoading] = useState(true);
       const [history, setHistory] = useState([]);
 
@@ -1040,15 +917,13 @@
         return db.doc(`${baseUserPath}/settings/config`);
       }, [baseUserPath]);
 
-      // Auth + syncId
       useEffect(() => {
         const unsub = auth.onAuthStateChanged(async (u) => {
           if (u) {
             setUser(u);
             const s = localStorage.getItem("health_log_sync_id");
             const id = (s && s.trim()) ? s.trim() : u.uid;
-            setSyncId(id);
-            setLocalSyncId(id);
+            setSyncId(id); setLocalSyncId(id);
           } else {
             auth.signInAnonymously().catch(console.error);
           }
@@ -1056,12 +931,8 @@
         return () => unsub();
       }, []);
 
-      // 儲存 API key 到 localStorage（只存本機）
-      useEffect(() => {
-        localStorage.setItem("healthlog_gemini_key", apiKey || "");
-      }, [apiKey]);
+      useEffect(() => { localStorage.setItem("healthlog_gemini_key", apiKey || ""); }, [apiKey]);
 
-      // 設定 onSnapshot
       useEffect(() => {
         if (!settingsRef) return;
         let unsub = () => {};
@@ -1080,13 +951,9 @@
         return () => unsub();
       }, [settingsRef]);
 
-      // 當日 + 前一日 onSnapshot
       useEffect(() => {
         if (!syncId) return;
-
-        setLoading(true);
-        setPermissionError(false);
-
+        setLoading(true); setPermissionError(false);
         const todayRef = dayDocRef(date);
         const prevRef = dayDocRef(shiftDate(date, -1));
         if (!todayRef || !prevRef) return;
@@ -1103,14 +970,11 @@
         const unsubPrev = prevRef.onSnapshot((doc) => {
           if (doc.exists) setPrevData({ ...DEFAULT_DAY, ...doc.data() });
           else setPrevData(DEFAULT_DAY);
-        }, (e) => {
-          if (e.code === "permission-denied") setPermissionError(true);
-        });
+        }, (e) => { if (e.code === "permission-denied") setPermissionError(true); });
 
         return () => { unsubToday(); unsubPrev(); };
       }, [date, syncId, dayDocRef]);
 
-      // History：取最近 180 天（足夠畫趨勢 + 下載）
       const loadHistory = useCallback(async () => {
         if (!baseUserPath) return;
         try {
@@ -1120,53 +984,37 @@
           const list = [];
           snap.forEach(doc => {
             const w = Number(doc.data()?.weight);
-            if (!Number.isNaN(w) && w > 0) list.push({ date: doc.id.slice(5), weight: w }); // MM-DD
+            if (!Number.isNaN(w) && w > 0) list.push({ date: doc.id.slice(5), weight: w });
           });
           setHistory(list);
-        } catch (e) {
-          if (e.code === "permission-denied") setPermissionError(true);
-        }
+        } catch (e) { if (e.code === "permission-denied") setPermissionError(true); }
       }, [baseUserPath]);
 
       useEffect(() => { loadHistory(); }, [loadHistory, date]);
 
       const totals = useMemo(() => computeMealTotals(data.meals || []), [data.meals]);
 
-      
       const incrementField = async (field, amount) => {
         if (!baseUserPath) return;
         const ref = dayDocRef(date);
         if (!ref) return;
-
         setData(prev => ({ ...prev, [field]: clampNum(prev[field], 0) + amount }));
-
         try {
           await ref.set({
             [field]: firebase.firestore.FieldValue.increment(amount),
             updatedAt: firebase.firestore.FieldValue.serverTimestamp()
           }, { merge: true });
-        } catch (e) {
-          if (e.code === "permission-denied") setPermissionError(true);
-          console.error(e);
-        }
+        } catch (e) { if (e.code === "permission-denied") setPermissionError(true); }
       };
-const updateDay = async (patch) => {
+
+      const updateDay = async (patch) => {
         if (!baseUserPath) return;
         const ref = dayDocRef(date);
         if (!ref) return;
-
-        // optimistic UI
         setData(prev => ({ ...prev, ...patch }));
-
         try {
-          await ref.set({
-            ...patch,
-            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-          }, { merge: true });
-        } catch (e) {
-          if (e.code === "permission-denied") setPermissionError(true);
-          console.error(e);
-        }
+          await ref.set({ ...patch, updatedAt: firebase.firestore.FieldValue.serverTimestamp() }, { merge: true });
+        } catch (e) { if (e.code === "permission-denied") setPermissionError(true); }
       };
 
       const addMeal = async (meal) => {
@@ -1178,16 +1026,10 @@ const updateDay = async (patch) => {
             const doc = await tx.get(ref);
             const cur = doc.exists ? (doc.data() || {}) : {};
             const meals = Array.isArray(cur.meals) ? cur.meals : [];
-            tx.set(ref, {
-              meals: [...meals, meal],
-              updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-            }, { merge: true });
+            tx.set(ref, { meals: [...meals, meal], updatedAt: firebase.firestore.FieldValue.serverTimestamp() }, { merge: true });
           });
           loadHistory();
-        } catch (e) {
-          if (e.code === "permission-denied") setPermissionError(true);
-          alert("新增餐點失敗：" + (e.message || e));
-        }
+        } catch (e) { alert("新增失敗：" + e.message); }
       };
 
       const deleteMeal = async (mealId) => {
@@ -1203,49 +1045,30 @@ const updateDay = async (patch) => {
             tx.set(ref, { meals: next, updatedAt: firebase.firestore.FieldValue.serverTimestamp() }, { merge: true });
           });
           loadHistory();
-        } catch (e) {
-          if (e.code === "permission-denied") setPermissionError(true);
-          alert("刪除餐點失敗：" + (e.message || e));
-        }
+        } catch (e) { alert("刪除失敗：" + e.message); }
       };
 
       const savePresetFromMeal = async (meal) => {
         const defaultLabel = safeText(meal.name) || "常用餐點";
-        const label = prompt("請幫這個常用餐點取名字（下次可下拉選）", defaultLabel);
+        const label = prompt("請幫這個常用餐點取名字", defaultLabel);
         if (!label) return;
-
         const preset = {
-          id: uuid(),
-          label: safeText(label),
-          category: meal.category || "snack",
+          id: uuid(), label: safeText(label), category: meal.category || "snack",
           text: safeText(meal.text) || safeText(meal.name) || safeText(label),
-          calories: clampNum(meal.calories, 0),
-          protein: clampNum(meal.protein, 0),
-          carbs: clampNum(meal.carbs, 0),
-          fat: clampNum(meal.fat, 0),
-          createdAtMs: Date.now()
+          calories: clampNum(meal.calories, 0), protein: clampNum(meal.protein, 0),
+          carbs: clampNum(meal.carbs, 0), fat: clampNum(meal.fat, 0), createdAtMs: Date.now()
         };
-
         if (!settingsRef) return;
-
         try {
           await db.runTransaction(async (tx) => {
             const doc = await tx.get(settingsRef);
             const cur = doc.exists ? (doc.data() || {}) : {};
             const list = Array.isArray(cur.presets) ? cur.presets : [];
-            // 同名就覆蓋（避免一直長）
             const filtered = list.filter(p => (p.label || p.name) !== preset.label);
-            tx.set(settingsRef, {
-              targets,
-              presets: [...filtered, preset],
-              updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-            }, { merge: true });
+            tx.set(settingsRef, { targets, presets: [...filtered, preset], updatedAt: firebase.firestore.FieldValue.serverTimestamp() }, { merge: true });
           });
           alert("已存成常用餐點：" + preset.label);
-        } catch (e) {
-          if (e.code === "permission-denied") setPermissionError(true);
-          alert("儲存常用餐點失敗：" + (e.message || e));
-        }
+        } catch (e) { alert("儲存失敗：" + e.message); }
       };
 
       const deletePreset = async (presetId) => {
@@ -1256,16 +1079,9 @@ const updateDay = async (patch) => {
             const cur = doc.exists ? (doc.data() || {}) : {};
             const list = Array.isArray(cur.presets) ? cur.presets : [];
             const next = list.filter(p => p.id !== presetId);
-            tx.set(settingsRef, {
-              targets,
-              presets: next,
-              updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-            }, { merge: true });
+            tx.set(settingsRef, { targets, presets: next, updatedAt: firebase.firestore.FieldValue.serverTimestamp() }, { merge: true });
           });
-        } catch (e) {
-          if (e.code === "permission-denied") setPermissionError(true);
-          alert("刪除常用餐點失敗：" + (e.message || e));
-        }
+        } catch (e) { alert("刪除失敗：" + e.message); }
       };
 
       const saveAllSettings = async () => {
@@ -1273,26 +1089,18 @@ const updateDay = async (patch) => {
         if (!id) { alert("同步代號不可為空"); return; }
         localStorage.setItem("health_log_sync_id", id);
         setSyncId(id);
-
         try {
           await db.doc(`artifacts/health-tracker-v1/users/${id}/settings/config`).set({
-            targets,
-            presets,
-            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            targets, presets, updatedAt: firebase.firestore.FieldValue.serverTimestamp()
           }, { merge: true });
-          alert("已儲存設定！\n\n如果你改了同步代號，請在其他裝置也填同一個。");
-          // 重新整理讓 baseUserPath 更新乾淨
+          alert("已儲存設定！\n請重新整理頁面確保同步生效。");
           window.location.reload();
-        } catch (e) {
-          if (e.code === "permission-denied") setPermissionError(true);
-          alert("儲存設定失敗：" + (e.message || e));
-        }
+        } catch (e) { alert("儲存失敗：" + e.message); }
       };
 
       const coachPreview = useMemo(() => {
-        // 若完全沒填，顯示簡短提示
         const hasAny = safeText(data.weight) || safeText(data.sleep) || (data.meals || []).length || clampNum(prevData.water,0) || clampNum(prevData.steps,0) || (prevData.meals||[]).length;
-        if (!hasAny) return "（還沒有資料。先到「紀錄」頁填體重/睡眠/飲食，或填昨天的喝水/步數/運動/飲食。）";
+        if (!hasAny) return "（還沒有資料。先到「紀錄」頁填資料，或填昨天的喝水/步數/運動/飲食。）";
         return buildCoachReport({ date, today: data, prev: prevData });
       }, [date, data, prevData]);
 
@@ -1302,7 +1110,6 @@ const updateDay = async (patch) => {
           await navigator.clipboard.writeText(text);
           alert("已複製到剪貼簿 ✅");
         } catch {
-          // fallback
           const ta = document.createElement("textarea");
           ta.value = text;
           document.body.appendChild(ta);
@@ -1318,74 +1125,27 @@ const updateDay = async (patch) => {
         try {
           const col = db.collection(`${baseUserPath}/daily_logs`);
           const snap = await col.orderBy(firebase.firestore.FieldPath.documentId(), "asc").limit(400).get();
-
           const map = {};
           const dates = [];
-          snap.forEach(doc => {
-            map[doc.id] = { ...DEFAULT_DAY, ...doc.data() };
-            dates.push(doc.id);
-          });
+          snap.forEach(doc => { map[doc.id] = { ...DEFAULT_DAY, ...doc.data() }; dates.push(doc.id); });
 
-          // 沒資料也要能下載表頭
-          const header = [
-            "record_date",
-            "fasting_weight_kg",
-            "morning_fatigue_1to10",
-            "sleep_hours_prev_day",
-            "water_ml_prev_day",
-            "steps_prev_day",
-            "cardio_prev_day",
-            "calories_prev_day",
-            "protein_prev_day",
-            "carbs_prev_day",
-            "fat_prev_day",
-            "breakfast_prev_day",
-            "lunch_prev_day",
-            "dinner_prev_day",
-            "snack_prev_day",
-            "workout_prev_day"
-          ];
-
+          const header = ["record_date","fasting_weight_kg","morning_fatigue_1to10","sleep_hours_prev_day","water_ml_prev_day","steps_prev_day","cardio_prev_day","calories_prev_day","protein_prev_day","carbs_prev_day","fat_prev_day","breakfast_prev_day","lunch_prev_day","dinner_prev_day","snack_prev_day","workout_prev_day"];
           const rows = [header.join(",")];
-
           dates.forEach(d => {
             const today = map[d] || DEFAULT_DAY;
             const prevId = shiftDate(d, -1);
             const prev = map[prevId] || DEFAULT_DAY;
             const prevTotals = computeMealTotals(prev.meals || []);
-            const row = [
-              d,
-              safeText(today.weight),
-              today.fatigue || "",
-              safeText(today.sleep),
-              clampNum(prev.water, 0),
-              clampNum(prev.steps, 0),
-              formatCardio(prev),
-              Math.round(prevTotals.cal),
-              Math.round(prevTotals.pro),
-              Math.round(prevTotals.carb),
-              Math.round(prevTotals.fat),
-              mealsToTextByCategory(prev.meals || [], "breakfast"),
-              mealsToTextByCategory(prev.meals || [], "lunch"),
-              mealsToTextByCategory(prev.meals || [], "dinner"),
-              mealsToTextByCategory(prev.meals || [], "snack"),
-              formatWorkout(prev)
-            ].map(csvEscape);
-            rows.push(row.join(","));
+            rows.push([d, safeText(today.weight), today.fatigue || "", safeText(today.sleep), clampNum(prev.water, 0), clampNum(prev.steps, 0), formatCardio(prev), Math.round(prevTotals.cal), Math.round(prevTotals.pro), Math.round(prevTotals.carb), Math.round(prevTotals.fat), mealsToTextByCategory(prev.meals || [], "breakfast"), mealsToTextByCategory(prev.meals || [], "lunch"), mealsToTextByCategory(prev.meals || [], "dinner"), mealsToTextByCategory(prev.meals || [], "snack"), formatWorkout(prev)].map(csvEscape).join(","));
           });
-
-          const csv = rows.join("\n");
-          const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+          const blob = new Blob([rows.join("\n")], { type: "text/csv;charset=utf-8;" });
           const url = URL.createObjectURL(blob);
           const a = document.createElement("a");
           a.href = url;
           a.download = `healthlog_coach_report_${date}.csv`;
           a.click();
           URL.revokeObjectURL(url);
-        } catch (e) {
-          if (e.code === "permission-denied") setPermissionError(true);
-          alert("匯出失敗：" + (e.message || e));
-        }
+        } catch (e) { alert("匯出失敗：" + e.message); }
       };
 
       if (permissionError) {
@@ -1394,17 +1154,9 @@ const updateDay = async (patch) => {
             <Card className="border-danger">
               <SectionTitle icon="error" title="Firebase 權限錯誤" />
               <div className="text-secondary space-y-2 text-sm">
-                <div>你目前的 Firestore 安全規則可能不允許讀寫這個路徑。</div>
-                <div>你現在使用的資料路徑是：</div>
-                <div className="mono text-xs bg-inputBg p-3 rounded-xl border border-borderBeige">
-                  artifacts/health-tracker-v1/users/{syncId}/...
-                </div>
-                <div>如果你之前可以讀寫、突然不行，可能是規則被改過或同步代號換了。</div>
-                <div className="mt-3">
-                  <OutlineButton onClick={() => window.location.reload()}>
-                    重新整理
-                  </OutlineButton>
-                </div>
+                <div>Firestore 拒絕存取。請確認你的同步代號是否正確。</div>
+                <div className="mono text-xs bg-inputBg p-3 rounded-xl border border-borderBeige">artifacts/health-tracker-v1/users/{syncId}/...</div>
+                <OutlineButton className="mt-4" onClick={() => window.location.reload()}>重新整理</OutlineButton>
               </div>
             </Card>
           </div>
@@ -1419,89 +1171,40 @@ const updateDay = async (patch) => {
                 <div className="text-xs text-secondary/70">Nicole 2026 Health Log</div>
                 <div className="font-extrabold text-primary text-xl">今日總覽</div>
               </div>
-
-              <div className="flex items-center gap-2 bg-white rounded-xl border border-borderBeige">
-                <button onClick={() => setDate(shiftDate(date, -1))} className="px-3 py-2 text-primary material-icons">chevron_left</button>
-                <span className="px-2 py-2 text-sm font-mono text-primary">{date}</span>
-                <button onClick={() => setDate(shiftDate(date, 1))} className="px-3 py-2 text-primary material-icons">chevron_right</button>
+              <div className="flex items-center gap-2 bg-white rounded-xl border border-borderBeige px-2 shadow-sm">
+                <button onClick={() => setDate(shiftDate(date, -1))} className="p-2 text-primary material-icons">chevron_left</button>
+                <div className="relative">
+                  <input type="date" value={date} onChange={e => setDate(e.target.value)} required />
+                </div>
+                <button onClick={() => setDate(shiftDate(date, 1))} className="p-2 text-primary material-icons">chevron_right</button>
               </div>
             </div>
             <div className="mt-2 text-xs text-secondary/70">同步代號：<span className="mono">{syncId || "-"}</span></div>
           </header>
 
           <main className="p-4">
-            {loading ? (
-              <div className="text-center text-secondary/70 py-10">載入中...</div>
-            ) : (
+            {loading ? <div className="text-center text-secondary/70 py-10">載入中...</div> : (
               <>
-                {view === "dashboard" && (
-                  <DashboardPage
-                    date={date}
-                    data={data}
-                    targets={targets}
-                    totals={totals}
-                    onQuickAdd={(field, v) => incrementField(field, v)}
-                    onCopyCoachReport={copyCoachReport}
-                    coachPreview={coachPreview}
-                  />
-                )}
-
-                {view === "log" && (
-                  <LogPage
-                    date={date}
-                    data={data}
-                    targets={targets}
-                    apiKey={apiKey}
-                    presets={presets}
-                    onUpdate={updateDay}
-                    onAddMeal={addMeal}
-                    onDeleteMeal={deleteMeal}
-                    onSavePreset={savePresetFromMeal}
-                  />
-                )}
-
-                {view === "history" && (
-                  <HistoryPage
-                    history={history}
-                    onExportCsv={exportCsv}
-                  />
-                )}
-
-                {view === "settings" && (
-                  <SettingsPage
-                    syncId={syncId}
-                    localSyncId={localSyncId}
-                    setLocalSyncId={setLocalSyncId}
-                    targets={targets}
-                    setTargets={setTargets}
-                    apiKey={apiKey}
-                    setApiKey={setApiKey}
-                    presets={presets}
-                    onDeletePreset={deletePreset}
-                    onSaveAll={saveAllSettings}
-                  />
-                )}
+                {view === "dashboard" && <DashboardPage date={date} data={data} targets={targets} totals={totals} onQuickAdd={(f,v)=>incrementField(f,v)} onCopyCoachReport={copyCoachReport} coachPreview={coachPreview} />}
+                {view === "log" && <LogPage date={date} data={data} targets={targets} apiKey={apiKey} presets={presets} onUpdate={updateDay} onAddMeal={addMeal} onDeleteMeal={deleteMeal} onSavePreset={savePresetFromMeal} />}
+                {view === "history" && <HistoryPage history={history} onExportCsv={exportCsv} />}
+                {view === "settings" && <SettingsPage syncId={syncId} localSyncId={localSyncId} setLocalSyncId={setLocalSyncId} targets={targets} setTargets={setTargets} apiKey={apiKey} setApiKey={setApiKey} presets={presets} onDeletePreset={deletePreset} onSaveAll={saveAllSettings} />}
               </>
             )}
           </main>
 
-          {/* Nav */}
-          <nav className="fixed bottom-0 w-full max-w-md bg-white border-t border-borderBeige flex justify-around p-2 pb-6 z-20">
-            <button onClick={() => setView("dashboard")} className={"flex flex-col items-center w-16 " + (view==="dashboard" ? "text-primary" : "text-secondary/50")}>
-              <span className="material-icons">dashboard</span>
-              <span className="text-xs font-bold">總覽</span>
+          <nav className="fixed bottom-0 w-full max-w-md bg-white border-t border-borderBeige flex justify-around p-2 pb-6 z-20 shadow-lg">
+            <button onClick={() => setView("dashboard")} className={"flex flex-col items-center w-16 transition-colors " + (view==="dashboard" ? "text-primary" : "text-secondary/50")}>
+              <span className="material-icons">dashboard</span><span className="text-xs font-bold">總覽</span>
             </button>
-            <button onClick={() => setView("log")} className={"flex flex-col items-center w-16 " + (view==="log" ? "text-primary" : "text-secondary/50")}>
-              <span className="material-icons">edit_note</span>
-              <span className="text-xs font-bold">紀錄</span>
+            <button onClick={() => setView("log")} className={"flex flex-col items-center w-16 transition-colors " + (view==="log" ? "text-primary" : "text-secondary/50")}>
+              <span className="material-icons">edit_note</span><span className="text-xs font-bold">紀錄</span>
             </button>
-            <button onClick={() => setView("history")} className={"flex flex-col items-center w-16 " + (view==="history" ? "text-primary" : "text-secondary/50")}>
-              <span className="material-icons">show_chart</span>
-              <span className="text-xs font-bold">歷史</span>
+            <button onClick={() => setView("history")} className={"flex flex-col items-center w-16 transition-colors " + (view==="history" ? "text-primary" : "text-secondary/50")}>
+              <span className="material-icons">show_chart</span><span className="text-xs font-bold">歷史</span>
             </button>
-            <button onClick={() => setView("settings")} className={"flex flex-col items-center w-16 " + (view==="settings" ? "text-primary" : "text-secondary/50")}>
-              <span className="material-icons">settings</span>
-              <span className="text-xs font-bold">設定</span>
+            <button onClick={() => setView("settings")} className={"flex flex-col items-center w-16 transition-colors " + (view==="settings" ? "text-primary" : "text-secondary/50")}>
+              <span className="material-icons">settings</span><span className="text-xs font-bold">設定</span>
             </button>
           </nav>
         </div>
