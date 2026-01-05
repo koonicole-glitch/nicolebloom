@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Nicole 2026 Health Log (MVP v1.1 FIX6)</title>
+  <title>Nicole 2026 Health Log (MVP v1.1 FIX7)</title>
 
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌿</text></svg>">
   <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/4322/4322991.png">
@@ -57,7 +57,7 @@
   <div id="root">
     <div style="height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; color: #4A5D23;">
       <div style="font-size: 40px; margin-bottom: 20px;">🌿</div>
-      <div>正在啟動 Health Log (MVP v1.1 FIX6)...</div>
+      <div>正在啟動 Health Log (MVP v1.1 FIX7)...</div>
       <div style="font-size: 12px; margin-top: 10px; color: #999;">如果一直停在這裡，請打開 DevTools Console 看錯誤訊息。</div>
     </div>
   </div>
@@ -427,44 +427,97 @@
       }
     };
 
-    const analyzeMealWithGemini = async (input, apiKey) => {
+        const analyzeMealWithGemini = async (input, apiKey) => {
       const text = safeText(input);
       if (!text) return null;
 
-      const cacheKey = normalizeMealKey(text);
+      // 1) 快取
+      const cacheKey = text.toLowerCase();
       const cached = getCachedMeal(cacheKey);
       if (cached) return cached;
 
-      const model = await pickGeminiModel(apiKey);
-      const endpoint = `${GEMINI_API_BASE}/${GEMINI_API_VERSION}/models/${model}:generateContent?key=${encodeURIComponent(apiKey)}`;
+      // 2) 模型候選（依可用性/成本排序）
+      const modelCandidates = [
+        "gemini-1.5-flash",
+        "gemini-2.0-flash",
+        "gemini-1.5-pro"
+      ];
 
+      // 3) Prompt：要求只回 JSON（搭配 responseMimeType 更穩）
       const prompt =
 `你是一位營養師，請根據使用者的餐點描述，估算整份餐點的熱量與三大營養素。
-要求：
-1) 只回傳「純 JSON」，不要加任何多餘文字或 markdown。
-2) JSON 格式必須是：{"name": string, "calories": number, "protein": number, "carbs": number, "fat": number}
-3) 數字為「整份餐點」估算值（允許四捨五入）。
+請只回傳 JSON（不要 Markdown、不要解釋），符合以下 Schema：
+{
+  "name": "string",
+  "calories": number,
+  "protein": number,
+  "carbs": number,
+  "fat": number
+}
 餐點描述：${text}`;
 
-      // 429 時做 2 次小延遲重試
-      for (let attempt=0; attempt<3; attempt++) {
-  try {
-    const modelCandidates = ["gemini-2.0-flash", "gemini-1.5-flash", "gemini-1.5-pro"];
+      const tryOneModel = async (modelName) => {
+        const endpoint = `${GEMINI_API_BASE}/${GEMINI_API_VERSION}/models/${modelName}:generateContent?key=${encodeURIComponent(apiKey)}`;
+        const res = await fetch(endpoint, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            contents: [{ parts: [{ text: prompt }] }],
+            generationConfig: {
+              temperature: 0.1,
+              responseMimeType: "application/json"
+            }
+          })
+        });
 
-    const callModel = async (modelName) => {
-      const endpoint = `${GEMINI_API_BASE}/${GEMINI_API_VERSION}/models/${modelName}:generateContent?key=${encodeURIComponent(apiKey)}`;
-      return fetch(endpoint, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: prompt }] }],
-          generationConfig: {
-            temperature: 0.1,
-            // ✅ JSON Mode：要求直接回 JSON 字串（仍做容錯解析）
-            response_mime_type: "application/json"
-          }
-        })
-      });
+        if (!res.ok) {
+          const errData = await res.json().catch(() => ({}));
+          const msg = errData?.error?.message || `API Error ${res.status}`;
+          const e = new Error(msg);
+          e.status = res.status;
+          e.data = errData;
+          throw e;
+        }
+
+        const data = await res.json();
+        let rawText = data?.candidates?.[0]?.content?.parts?.[0]?.text || "";
+        rawText = (rawText || "").trim();
+
+        // JSON mode 仍防呆：若模型回了奇怪格式，就用 safeParse 再撈一次
+        let parsed;
+        try {
+          parsed = JSON.parse(rawText);
+        } catch (_) {
+          parsed = safeParseJsonFromText(rawText);
+        }
+        if (!parsed || typeof parsed !== "object") throw new Error("Bad JSON");
+
+        const out = {
+          name: safeText(parsed.name) || text,
+          calories: clampNum(parsed.calories, 0),
+          protein: clampNum(parsed.protein, 0),
+          carbs: clampNum(parsed.carbs, 0),
+          fat: clampNum(parsed.fat, 0)
+        };
+
+        setCachedMeal(cacheKey, out);
+        return out;
+      };
+
+      // 4) 依序嘗試模型
+      let lastErr = null;
+      for (const modelName of modelCandidates) {
+        try {
+          return await tryOneModel(modelName);
+        } catch (e) {
+          lastErr = e;
+          console.warn("Gemini model failed:", modelName, e?.status || "", e?.message || e);
+          // 404 / 400 直接換下一個模型
+          continue;
+        }
+      }
+
+      throw lastErr || new Error("Gemini failed");
     };
 
     let data = null;
@@ -962,10 +1015,9 @@ const presetOptions = useMemo(() => {
 
           <Card>
             <SectionTitle icon="fitness_center" title="運動與活動" />
-            <div className="grid grid-cols-2 gap-4">
-              <InputGroup label="喝水 (ml)" type="number" value={data.water || 0} onChange={e => onUpdate({ water: parseInt(e.target.value || "0", 10) })} placeholder="2000" />
-              <InputGroup label="步數" type="number" value={data.steps || 0} onChange={e => onUpdate({ steps: parseInt(e.target.value || "0", 10) })} placeholder="8000" />
-            </div>
+            
+          {/* Water/Steps moved to 總覽：這裡先省略 */}
+
 
             <div className="grid grid-cols-2 gap-4 mt-4">
               <InputGroup label="有氧類型" value={data.cardioType || ""} onChange={e => onUpdate({ cardioType: e.target.value })} placeholder="跑步機慢走" />
@@ -1120,7 +1172,7 @@ const presetOptions = useMemo(() => {
           <Card>
             <SectionTitle icon="build" title="版本 / 更新修復" />
             <div className="text-sm text-secondary mb-3">
-              目前版本：<span className="mono">MVP v1.1 FIX6</span><br/>
+              目前版本：<span className="mono">MVP v1.1 FIX7</span><br/>
               如果你遇到「一直顯示舊版」或「怎麼更新都不變」，通常是舊版的離線快取 (Service Worker) 卡住。
             </div>
             <Button onClick={async () => { await resetSiteCache(); }}><span className="material-icons">cached</span>清除離線快取並強制更新</Button>
@@ -1378,22 +1430,32 @@ const presetOptions = useMemo(() => {
 
       
       const incrementField = async (field, amount) => {
-        if (!baseUserPath) return;
-        const ref = dayDocRef(date);
-        if (!ref) return;
+  if (!baseUserPath) return;
+  const ref = dayDocRef(date);
 
-        setData(prev => ({ ...prev, [field]: clampNum(prev[field], 0) + amount }));
+  // Optimistic UI update (即使網路不穩也先讓數字動起來)
+  setData((prev) => {
+    const cur = prev || {};
+    const nextVal = clampNum(cur?.[field], 0) + amount;
+    return { ...cur, [field]: nextVal };
+  });
 
-        try {
-          await ref.set({
-            [field]: firebase.firestore.FieldValue.increment(amount),
-            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-          }, { merge: true });
-        } catch (e) {
-          if (e.code === "permission-denied") setPermissionError(true);
-          console.error(e);
-        }
-      };
+  try {
+    await db.runTransaction(async (tx) => {
+      const snap = await tx.get(ref);
+      const cur = snap.exists ? snap.data() : {};
+      const base = clampNum(cur?.[field], 0);
+      tx.set(
+        ref,
+        { [field]: base + amount, updatedAt: firebase.firestore.FieldValue.serverTimestamp() },
+        { merge: true }
+      );
+    });
+  } catch (e) {
+    console.error("incrementField failed:", e);
+    // 寫入失敗時先不回滾（避免 UI 抖動），使用者可稍後重整確認同步狀態
+  }
+};
 const updateDay = async (patch) => {
         if (!baseUserPath) return;
         const ref = dayDocRef(date);
@@ -1754,30 +1816,44 @@ const updateDay = async (patch) => {
     };
 
 
-const updateMeal = async (mealId, patch) => {
-  if (!user) return;
-  const dayRef = doc(db, baseUserPath(user.uid), "days", date);
-  const safePatch = patch || {};
-  await runTransaction(db, async (tx) => {
-    const snap = await tx.get(dayRef);
-    const current = snap.exists() ? snap.data() : {};
-    const meals = Array.isArray(current.meals) ? current.meals.slice() : [];
-    const idx = meals.findIndex((m) => m && m.id === mealId);
-    if (idx < 0) return;
+const updateMeal = async (mealId, patch, presetLabel = null) => {
+  if (!baseUserPath) return;
+  const ref = dayDocRef(date);
 
-    meals[idx] = { ...meals[idx], ...safePatch, updatedAtMs: Date.now() };
-
-    tx.set(
-      dayRef,
-      {
-        ...DEFAULT_DAY,
-        ...current,
-        meals,
-        updatedAtMs: Date.now(),
-      },
-      { merge: true }
-    );
+  // Optimistic UI update
+  setData((prev) => {
+    const cur = prev || {};
+    const meals = Array.isArray(cur.meals) ? cur.meals.map((m) => (m?.id === mealId ? { ...m, ...patch } : m)) : [];
+    return { ...cur, meals };
   });
+
+  try {
+    await db.runTransaction(async (tx) => {
+      const snap = await tx.get(ref);
+      const cur = snap.exists ? snap.data() : {};
+      const meals = Array.isArray(cur.meals) ? cur.meals.slice() : [];
+      const idx = meals.findIndex((m) => m && m.id === mealId);
+      if (idx < 0) return;
+
+      meals[idx] = { ...meals[idx], ...patch, updatedAtMs: Date.now() };
+
+      tx.set(
+        ref,
+        { meals, updatedAt: firebase.firestore.FieldValue.serverTimestamp() },
+        { merge: true }
+      );
+    });
+
+    if (presetLabel) {
+      const existing = (data?.meals || []).find((m) => m?.id === mealId) || {};
+      const merged = { ...existing, ...patch, id: mealId };
+      await savePresetFromMeal(merged, presetLabel);
+    }
+  } catch (e) {
+    console.error("updateMeal failed:", e);
+    alert("修改儲存失敗（可能是網路或同步問題）。
+你可以先繼續使用，稍後再重整確認是否同步。");
+  }
 };
 
     const root = ReactDOM.createRoot(document.getElementById("root"));
